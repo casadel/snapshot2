@@ -57,12 +57,12 @@ def loop(watcher):
         page = requests.get(watcher['url'])
         soup = BeautifulSoup(page.text, 'html.parser')
         link = watcher['selector'](soup)
-        if watcher['last_link'] is not None and link != watcher['last_link'] and link:
+        if len(watcher['last_link'].keys()) > 0 and link not in watcher['last_link'] and link:
             cmd = 'start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %link
             os.system(cmd)
             winsound.Beep(440, 500)
             print str(datetime.datetime.now())
-        watcher['last_link'] = link
+	watcher['last_link'][link] = True
         time.sleep(.5)
 
 
@@ -70,37 +70,37 @@ watchmen = [
     {
         'url': 'http://nypost.com/feed/',
         'selector': get_nypost,
-        'last_link': None
+        'last_link': {}
     },
     {
         'url': 'http://www.citronresearch.com/reports/',
         'selector': get_citron,
-        'last_link': None
+        'last_link': {}
     },
     {
         'url': 'http://www.muddywatersresearch.com/research/',
         'selector': get_muddy,
-        'last_link': None
+        'last_link': {}
     },
     {
         'url': 'http://www.sprucepointcap.com/research/',
         'selector': get_spruced,
-        'last_link': None
+        'last_link': {}
     },
     {
         'url': 'http://www.presciencepoint.com/research/',
         'selector': get_prescience,
-        'last_link': None
+        'last_link': {}
     },
     {
         'url': 'https://gothamcityresearch.com/research/',
         'selector': get_gotham,
-        'last_link': None
+        'last_link': {}
     },
     {
         'url': 'http://www.fda.gov/NewsEvents/Newsroom/PressAnnouncements/default.htm',
         'selector': get_fdanews,
-        'last_link': None
+        'last_link': {}
     }
 ]
 
