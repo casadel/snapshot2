@@ -54,9 +54,13 @@ def get_fdanews(soup):
 
 def loop(watcher):
     while True:
-        page = requests.get(watcher['url'])
-        soup = BeautifulSoup(page.text, 'html.parser')
-        link = watcher['selector'](soup)
+    	try:
+	    page = requests.get(watcher['url'])
+            soup = BeautifulSoup(page.text, 'html.parser')
+            link = watcher['selector'](soup)
+        except Exception as e:
+            print 'Scraping %s failed for some reason' %watcher['url']
+            link = False
         if len(watcher['last_link'].keys()) > 0 and link not in watcher['last_link'] and link:
             cmd = 'start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %link
             os.system(cmd)
