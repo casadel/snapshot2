@@ -13,7 +13,8 @@ def get_nypost(soup):
     article = soup.find('item')
     link = article.find('link').text
     authors = article.find('dc:creator').text.split(', ')
-    if 'Josh Kosman' in authors or 'Claire Atkinson' in authors:
+    damelos = ['Josh Kosman', 'Claire Atkinson', 'Associated Press', 'Post Editorial Board']
+    if any(damelo in authors for damelo in damelos):
         return link
     else:
         return False
@@ -25,8 +26,8 @@ def get_citron(soup):
     return link
 
 def get_muddy(soup):
-    first_cell = soup.find('tbody').find('td')
-    link = first_cell.find('a')['href']
+    article = soup.find('item')
+    link = article.find('link').text
     return link
 
 def get_spruced(soup):
@@ -41,21 +42,18 @@ def get_prescience(soup):
 
 def get_gotham(soup):
     article = soup.find('article')
-    story_link = article.find('a')['href']
-    link = 'http://citronresearch.com' + story_link
+    link = article.find('a')['href']
     return link
 
 def get_fdanews(soup):
-    table = soup.find_all('div', {'class': 'panel-body'})[0]
-    article = table.find('li')
-    link = article.find('a')['href']
-    link = 'http://www.fda.gov' + link
+    article = soup.find('item')
+    link = article.find('link').text
     return link
 
 def loop(watcher):
     while True:
-    	try:
-	    page = requests.get(watcher['url'])
+        try:
+            page = requests.get(watcher['url'])
             soup = BeautifulSoup(page.text, 'html.parser')
             link = watcher['selector'](soup)
         except Exception as e:
@@ -66,7 +64,7 @@ def loop(watcher):
             os.system(cmd)
             winsound.Beep(440, 500)
             print str(datetime.datetime.now())
-	watcher['last_link'][link] = True
+        watcher['last_link'][link] = True
         time.sleep(.5)
 
 
@@ -77,12 +75,12 @@ watchmen = [
         'last_link': {}
     },
     {
-        'url': 'http://www.citronresearch.com/reports/',
+        'url': 'http://www.citronresearch.com/',
         'selector': get_citron,
         'last_link': {}
     },
     {
-        'url': 'http://www.muddywatersresearch.com/research/',
+        'url': 'http://www.muddywatersresearch.com/feed/?post_type=reports',
         'selector': get_muddy,
         'last_link': {}
     },
@@ -102,7 +100,7 @@ watchmen = [
         'last_link': {}
     },
     {
-        'url': 'http://www.fda.gov/NewsEvents/Newsroom/PressAnnouncements/default.htm',
+        'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
         'selector': get_fdanews,
         'last_link': {}
     }
