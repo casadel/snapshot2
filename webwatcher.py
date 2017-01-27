@@ -30,8 +30,10 @@ def get_gotham(soup):
     return link
 
 def get_street(soup):
+    url = 'https://www.thestreet.com'
     article = soup.find_all('div', {'class': 'news-list__item'})[0]
     link = article.find('a')['href']
+    link = url+link
     author = article.find_all('div', {'class': 'news-list__author-name'})[0].text
     damelo = 'Adam Feuerstein'
     if author == damelo:
@@ -42,15 +44,15 @@ def get_street(soup):
 def loop(watcher):
     while True:
         try:
-	    headers = {
-		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
-	    }
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
+        }
 
             page = requests.get(watcher['url'], headers=headers)
             soup = BeautifulSoup(page.text, 'html.parser')
             link = watcher['selector'](soup)
         except Exception as e:
-            print 'Scraping %s failed for some reason' %watcher['url']
+            print 'Scraping %s failed for some reason' %watcher['url'], str(datetime.datetime.now())
             link = False
         if len(watcher['last_link'].keys()) > 0 and link not in watcher['last_link'] and link:
             cmd = 'start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %link
@@ -59,8 +61,7 @@ def loop(watcher):
             print str(datetime.datetime.now())
         watcher['last_link'][link] = True
         time.sleep(.5)
-
-
+        
 watchmen = [
     {
         'url': 'http://nypost.com/feed/',
