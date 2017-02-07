@@ -47,6 +47,16 @@ def get_ctfn(soup):
     url = 'http://ctfn.news/'
     return last_symbol, url
 
+def get_dcd(soup):
+    case = soup.find('item')
+    url = 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl'
+    title = case.find('title').text
+    damelo = 'Anthem'
+    if damelo in title:
+        return title, url
+    else:
+        return false, false
+
 def loop(watcher):
     while True:
         try:
@@ -66,50 +76,65 @@ def loop(watcher):
             winsound.Beep(440, 500)
             print str(datetime.datetime.now())
         watcher['last_link'][link] = True
-        time.sleep(.5)
+        time.sleep(watcher['delay'])
 
 
 watchmen = [
     {
         'url': 'http://nypost.com/feed/',
         'selector': get_nypost,
+        'delay': .5
     },
     {
         'url': 'http://www.citronresearch.com/feed',
         'selector': get_rss,
+        'delay': .5
     },
     {
         'url': 'http://www.muddywatersresearch.com/feed/?post_type=reports',
         'selector': get_rss,
+        'delay': .5
     },
     {
         'url': 'http://www.sprucepointcap.com/research/feed',
         'selector': get_rss,
+        'delay': .5
     },
     {
         'url': 'http://www.presciencepoint.com/research/feed',
         'selector': get_rss,
+        'delay': .5
     },
     {
         'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
         'selector': get_rss,
+        'delay': .5
     },
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
     #    'selector': get_rss,
+    #    'delay': .5
     #},
     {
         'url': 'https://www.thestreet.com',
         'selector': get_street,
+        'delay': .5
     },
     {
         'url': 'https://gothamcityresearch.com/research/',
         'selector': get_gotham,
+        'delay': .5
     },
     {
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
+        'delay': .5
     }
+    #{
+    #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl',
+    #    'selector': get_dcd,
+    #    'delay': 3
+    #}
 ]
 
 for watcher in watchmen:
