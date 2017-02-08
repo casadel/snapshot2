@@ -51,11 +51,36 @@ def get_dcd(soup):
     case = soup.find('item')
     url = 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl'
     title = case.find('title').text
-    damelo = 'Anthem'
-    if damelo in title:
+    case_number = '1:16-cv-01493' #US v ANTM
+    if case_number in title:
         return title, url
     else:
-        return false, false
+        return False, False
+
+def get_ded(soup):
+    case = soup.find('item')
+    url = 'https://ecf.ded.uscourts.gov/cgi-bin/rss_outside.pl'
+    title = case.find('title').text
+    case_numbers = ['1:16-cv-01267', '1:16-cv-01243'] #JUNO-KITE TEVA-various
+    if any(case_number in title for case_number in case_numbers):
+        return title, url
+    else:
+        return False, False
+
+def get_cafc(soup):
+    url = 'https://ecf.cafc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator'
+    case = soup.find('item')
+    title = case.find('title').text
+    case_numbers = ['17-1480', '17-1575'] #AMGN-SNY TEVA-Sandoz 
+    if any(case_number in title for case_number in case_numbers):
+        return title, url
+    else:
+        return False, False
+
+def get_interference(soup):
+    url = 'https://acts.uspto.gov/ifiling/PublicView.jsp?identifier=106048&identifier2=null&tabSel=4&action=filecontent&replyTo=PublicView.jsp'
+    doc_num = soup.find_all('tr', {'class': 'odd'})[0].find_all('td')[1].text
+    return doc_num, url
 
 def loop(watcher):
     while True:
@@ -129,12 +154,27 @@ watchmen = [
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
         'delay': .5
+    },
+    {
+        'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl',
+        'selector': get_dcd,
+        'delay': 3
+    },
+    {
+        'url': 'https://ecf.ded.uscourts.gov/cgi-bin/rss_outside.pl',
+        'selector': get_ded,
+        'delay': 3
+    },
+    {
+        'url': 'https://ecf.cafc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator',
+        'selector': get_cafc,
+        'delay': 4
+    },
+    {
+        'url': 'https://acts.uspto.gov/ifiling/PublicView.jsp?identifier=106048&identifier2=null&tabSel=4&action=filecontent&replyTo=PublicView.jsp',
+        'selector': get_interference,
+        'delay': 1
     }
-    #{
-    #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl',
-    #    'selector': get_dcd,
-    #    'delay': 3
-    #}
 ]
 
 for watcher in watchmen:
