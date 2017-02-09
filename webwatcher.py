@@ -24,23 +24,6 @@ def get_rss(soup):
     link = article.find('link').text
     return link, link
 
-def get_gotham(soup):
-    article = soup.find('article')
-    link = article.find('a')['href']
-    return link, link
-
-def get_street(soup):
-    url = 'https://www.thestreet.com'
-    article = soup.find_all('div', {'class': 'news-list__item'})[0]
-    link = article.find('a')['href']
-    link = url + link
-    author = article.find_all('div', {'class': 'news-list__author-name'})[0].text
-    damelo = 'Adam Feuerstein'
-    if author == damelo:
-        return link, link
-    else:
-        return False, False
-
 def get_ctfn(soup):
     last_pubs = soup.find_all('ul', {'class': 'last-published-contents'})[0]
     last_symbol = last_pubs.find('li').find('strong').text
@@ -140,16 +123,6 @@ watchmen = [
     #    'selector': get_rss,
     #    'delay': .5
     #},
-    {
-        'url': 'https://www.thestreet.com',
-        'selector': get_street,
-        'delay': .5
-    },
-    {
-        'url': 'https://gothamcityresearch.com/research/',
-        'selector': get_gotham,
-        'delay': .5
-    },
     {
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
