@@ -24,6 +24,15 @@ def get_rss(soup):
     link = article.find('link').text
     return link, link
 
+def get_street(soup):
+    story = soup.find_all('li', {'class': 'news-ticker__item'})[0]
+    link = story.find('a')['href']
+    damelos = ['drug', 'therapeutics', 'pharma', 'pharmaceuticals', 'data', 'biotech', 'biopharma', 'cancer']
+    if any(damelo in link for damelo in damelos):
+        return link, link
+    else:
+        return False, False
+
 def get_ctfn(soup):
     last_pubs = soup.find_all('ul', {'class': 'last-published-contents'})[0]
     last_symbol = last_pubs.find('li').find('strong').text
@@ -127,6 +136,11 @@ watchmen = [
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
         'delay': .5
+    },
+    {
+        'url': 'https://www.thestreet.com/latest-news',
+        'selector': get_street,
+	'delay': .5
     },
     {
         'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl',
