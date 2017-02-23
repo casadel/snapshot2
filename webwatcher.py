@@ -14,7 +14,7 @@ if os.name == 'nt':
     
 ###############################################################
 
-def get_nypost(soup):
+def get_nypost(soup, url):
     article = soup.find('item')
     link = article.find('link').text
     authors = article.find('dc:creator').text.split(', ')
@@ -24,24 +24,24 @@ def get_nypost(soup):
     else:
         return False, False
 
-def get_rss(soup):
+def get_rss(soup, url):
     article = soup.find('item')
     link = article.find('link').text
     return link, link
 
-def get_gotham(soup):
+def get_gotham(soup, url):
     article = soup.find('article')
     link = article.find('a')['href']
     return link, link
 
-def get_ctfn(soup):
+def get_ctfn(soup, url):
     last_pubs = soup.find_all('ul', {'class': 'last-published-contents'})[0]
     last_symbol = last_pubs.find('li').find('strong').text
     url = 'http://ctfn.news/'
     return last_symbol, url
 
 #DC District
-def get_dcd(soup):
+def get_dcd(soup, url):
     case = soup.find('item')
     url = 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl'
     title = case.find('title').text
@@ -52,7 +52,7 @@ def get_dcd(soup):
     #    return False, False
 
 #Delaware district
-def get_ded(soup):
+def get_ded(soup, url):
     case = soup.find('item')
     url = 'https://ecf.ded.uscourts.gov/cgi-bin/rss_outside.pl'
     title = case.find('title').text
@@ -63,7 +63,7 @@ def get_ded(soup):
         return False, False
 
 #Federal Circuit Court of Appeals
-def get_cafc(soup):
+def get_cafc(soup, url):
     url = 'https://ecf.cafc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator'
     case = soup.find('item')
     title = case.find('title').text
@@ -74,7 +74,7 @@ def get_cafc(soup):
         return False, False
 
 #DC Circuit Court of Appeals
-def get_cadc(soup):
+def get_cadc(soup, url):
     url = 'https://ecf.cadc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator'
     case = soup.find('item')
     title = case.find('title').text
@@ -199,19 +199,28 @@ watchmen = [
     	'name': 'IPR2016-00172',
     	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
         'selector': get_ptab_uspto,
-    	'delay': 30
-        'sound': 'C:\\Windows\Media\abbv_chrs.wav'
+    	'delay': 30,
+        'sound': 'C:\\Windows\Media\abbv_chrs.wav',
     	'type': 'json',
-    	'timestamp': True,
+    	'timestamp': True
     },
     {
     	'name': 'IPR2015-01853',
     	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459705/documents?availability=PUBLIC&cacheFix=',
-    	'delay': 30
+    	'delay': 30,
         'selector': get_ptab_uspto,
-        'sound': 'C:\\Windows\Media\acor_bass.wav'
+        'sound': 'C:\\Windows\Media\acor_bass.wav',
     	'type': 'json',
-    	'timestamp': True,
+    	'timestamp': True
+    },
+    {
+    	'name': 'IPR2015-01993',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=1',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\biib_bass.wav',
+    	'type': 'json',
+    	'timestamp': True
     }
 ]
 
