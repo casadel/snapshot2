@@ -119,6 +119,12 @@ def loop(watcher):
             link = False
 
         if len(watcher['last_link'].keys()) > 0 and link not in watcher['last_link'] and link:
+            if watcher['type'] == 'json':
+                dec_types = ['Final Written Decision', 'Decision to Institute Inter Partes Review', 'Decision Denying Institution', 'Termination Decision Document']
+                for doc in parsed:
+                    if any(doc['documentName'] == dec_type for dec_type in dec_types):
+                        url = url.split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
+                        break
             if os.name == 'nt':
 		cmd = 'start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url
 	    else:
@@ -128,7 +134,7 @@ def loop(watcher):
 	    if os.name == 'nt':
                 winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
                 
-            print watcher['name'] + str(datetime.datetime.now())
+            print watcher['name'] + " " +str(datetime.datetime.now())
 
         watcher['last_link'][link] = True
         time.sleep(watcher['delay'])
@@ -143,6 +149,10 @@ watchmen = [
     {
         'url': 'http://www.citronresearch.com/feed',
         'sound': 'C:\\Windows\Media\citron.wav'
+    },
+    {
+        'url': 'http://sirf-online.org/feed/',
+        'sound': 'C:\\Windows\Media\sirf.wav'
     },
     {
         'url': 'http://www.muddywatersresearch.com/feed/?post_type=reports',
@@ -196,6 +206,7 @@ watchmen = [
     #    'sound': 'C:\\Windows\Media\court.wav'
     #},
     {
+        # ABBV CHRS Humira, due 5/17
     	'name': 'IPR2016-00172',
     	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
         'selector': get_ptab_uspto,
@@ -205,6 +216,7 @@ watchmen = [
     	'timestamp': True
     },
     {
+        # ACOR-CAD Ampyra, IPRS 1850 1853 1857 1858 all due by 3/11
     	'name': 'IPR2015-01853',
     	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459705/documents?availability=PUBLIC&cacheFix=',
     	'delay': 30,
@@ -214,11 +226,68 @@ watchmen = [
     	'timestamp': True
     },
     {
+    	'name': 'IPR2015-01850',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459994/documents?availability=PUBLIC&cacheFix=',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\acor_bass.wav',
+    	'type': 'json',
+    	'timestamp': True
+    },
+    {
+    	'name': 'IPR2015-01857',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459733/documents?availability=PUBLIC&cacheFix=',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\acor_bass.wav',
+    	'type': 'json',
+    	'timestamp': True
+    },
+    {
+    	'name': 'IPR2015-01858',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463318/documents?availability=PUBLIC&cacheFix=',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\acor_bass.wav',
+    	'type': 'json',
+    	'timestamp': True
+    },
+    {
+        # NVLN - CAD Juxtapid, IPRs 1835 1836 due 3/7
+    	'name': 'IPR2015-01835',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464072/documents?availability=PUBLIC&cacheFix=',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\bass.wav',
+    	'type': 'json',
+    	'timestamp': True
+    },
+    {
+    	'name': 'IPR2015-01836',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459986/documents?availability=PUBLIC&cacheFix=',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\bass.wav',
+    	'type': 'json',
+    	'timestamp': True
+    },
+    {
+        # BIIB - CAD Tecfidera, due 3/22
     	'name': 'IPR2015-01993',
-    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=1',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=',
     	'delay': 30,
         'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\biib_bass.wav',
+    	'type': 'json',
+    	'timestamp': True
+    },
+    {
+        # MYL - TEVA Copaxone, institution decision due by May
+    	'name': 'IPR2017-00195',
+    	'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
+    	'delay': 30,
+        'selector': get_ptab_uspto,
+        'sound': 'C:\\Windows\Media\teva.wav',
     	'type': 'json',
     	'timestamp': True
     }
@@ -239,3 +308,4 @@ for watcher in watchmen:
 
 while True:
     time.sleep(1)
+
