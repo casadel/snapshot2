@@ -133,6 +133,8 @@ def loop(watcher):
 
 	    if os.name == 'nt':
                 winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+	else:
+		os.system("say '%s'" % watcher['name'])
                 
             print watcher['name'] + " " +str(datetime.datetime.now())
 
