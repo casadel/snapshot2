@@ -11,7 +11,7 @@ import json
 
 if os.name == 'nt':
     import winsound
-    
+
 ###############################################################
 
 def get_nypost(soup, url):
@@ -67,7 +67,7 @@ def get_cafc(soup, url):
     url = 'https://ecf.cafc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator'
     case = soup.find('item')
     title = case.find('title').text
-    case_numbers = ['17-1480', '17-1575'] #AMGN-SNY TEVA-Sandoz 
+    case_numbers = ['17-1480', '17-1575'] #AMGN-SNY TEVA-Sandoz
     if any(case_number in title for case_number in case_numbers):
         return title, url
     else:
@@ -91,7 +91,7 @@ def get_ptab_uspto(json, url):
     return len(json), url
 
 def make_url(doc, url):
-    link = url.split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload' 
+    link = url.split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
     return link
 
 ###############################################################################
@@ -117,7 +117,7 @@ def loop(watcher):
             parsed = BeautifulSoup(page.text, 'html.parser')
 
         link, url = watcher['selector'](parsed, url)
-        
+
         except Exception as e:
             print 'Scraping %s failed for some reason' %watcher['url'], str(datetime.datetime.now())
             link = False
@@ -130,7 +130,7 @@ def loop(watcher):
                         if any(doc['paperTypeName'] == dec_type for dec_type in dec_types):
                             url = make_url(doc, url)
                             break
-                    else:        
+                    else:
                         if doc['paperTypeName'] == 'Final Decision':
                             url = make_url(doc, url)
                             break
@@ -144,7 +144,7 @@ def loop(watcher):
                 winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
             else:
                 os.system("say '%s'" % watcher['name'])
-                
+
             print watcher['name'] + " " +str(datetime.datetime.now())
 
         watcher['last_link'][link] = True
@@ -321,7 +321,7 @@ watchmen = [
         'type': 'json',
         'timestamp': True
     },
-    
+
 ]
 
 for watcher in watchmen:
