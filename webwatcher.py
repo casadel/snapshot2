@@ -125,7 +125,7 @@ def loop(watcher):
             print '%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e))
             link = False
 
-        if len(watcher['last_link']) > 0 and link not in watcher['last_link'] and link:
+        if len(watcher['last_link']) > 0 and link not in watcher['last_link'] and link and open_url:
             cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"'
                    if os.name == 'nt' else "open '%s'") %open_url
             os.system(cmd)
