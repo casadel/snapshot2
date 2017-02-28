@@ -86,7 +86,7 @@ def get_ptab_uspto(json, watcher):
     def make_url(doc, url):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
-    url = False
+    url = 'https://ptab.uspto.gov/#/login'
 
     # this is more documents than we've seen before
     if len(watcher['last_link']) > 0 and len(json) not in watcher['last_link']:
