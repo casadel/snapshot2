@@ -12,9 +12,12 @@ import json
 if os.name == 'nt':
     import winsound
 
+def append_timestamp(url):
+    return url + str(int((datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds() * 1000))
+
 ###############################################################
 
-def get_nypost(soup, url):
+def get_nypost(soup, watcher):
     article = soup.find('item')
     link = article.find('link').text
     authors = article.find('dc:creator').text.split(', ')
@@ -24,75 +27,75 @@ def get_nypost(soup, url):
     else:
         return False, False
 
-def get_rss(soup, url):
+def get_rss(soup, watcher):
     article = soup.find('item')
     link = article.find('link').text
     return link, link
 
-def get_gotham(soup, url):
+def get_gotham(soup, watcher):
     article = soup.find('article')
     link = article.find('a')['href']
     return link, link
 
-def get_ctfn(soup, url):
+def get_ctfn(soup, watcher):
     last_pubs = soup.find_all('ul', {'class': 'last-published-contents'})[0]
     last_symbol = last_pubs.find('li').find('strong').text
-    url = 'http://ctfn.news/'
-    return last_symbol, url
+    return last_symbol, watcher['url']
 
-#DC District
-def get_dcd(soup, url):
+# DC District
+def get_dcd(soup, watcher):
     case = soup.find('item')
-    url = 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl'
     title = case.find('title').text
     #case_number = '1:16-cv-01493' #US v ANTM
     #if case_number in title:
-    return title, url
+    return title, watcher['url']
     #else:
     #    return False, False
 
-#Delaware district
-def get_ded(soup, url):
+# Delaware district
+def get_ded(soup, watcher):
     case = soup.find('item')
-    url = 'https://ecf.ded.uscourts.gov/cgi-bin/rss_outside.pl'
     title = case.find('title').text
     case_numbers = ['1:16-cv-01267', '1:16-cv-01243'] #JUNO-KITE TEVA-various
     if any(case_number in title for case_number in case_numbers):
-        return title, url
+        return title, watcher['url']
     else:
         return False, False
 
-#Federal Circuit Court of Appeals
-def get_cafc(soup, url):
-    url = 'https://ecf.cafc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator'
+# Federal Circuit Court of Appeals
+def get_cafc(soup, watcher):
     case = soup.find('item')
     title = case.find('title').text
     case_numbers = ['17-1480', '17-1575'] #AMGN-SNY TEVA-Sandoz
     if any(case_number in title for case_number in case_numbers):
-        return title, url
+        return title, watcher['url']
     else:
         return False, False
 
-#DC Circuit Court of Appeals
-def get_cadc(soup, url):
-    url = 'https://ecf.cadc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator'
+# DC Circuit Court of Appeals
+def get_cadc(soup, watcher):
     case = soup.find('item')
     title = case.find('title').text
     case_number = '17-5024' #US-ANTM appeal
     if case_number in title:
-        return title, url
+        return title, watcher['url']
     else:
         return False, False
 
-def get_ptab_uspto(json, url):
-    # the url to open, since hard to open to the document directly
-    url = 'https://ptab.uspto.gov/#/login'
-    # just return the number of currently uploaded documents
-    return len(json), url
+def get_ptab_uspto(json, watcher):
+    def make_url(doc, url):
+        return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
-def make_url(doc, url):
-    link = url.split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
-    return link
+    url = False
+
+    # this is more documents than we've seen before
+    if len(watcher['last_link']) > 0 and len(json) not in watcher['last_link']:
+        for doc in json:
+            if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
+                url = make_url(doc, watcher['url'])
+                break
+
+    return len(json), url
 
 ###############################################################################
 
@@ -102,42 +105,29 @@ headers = {
 
 def loop(watcher):
     while True:
-        try:
         # append the current unix timestamp to the URL if necessary
         # (ptab.uspto.gov requires it)
         url = watcher['url']
         if watcher['timestamp']:
-            url += str(int((datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds() * 1000))
+            url = append_timestamp(url)
 
-        # download the page and parse it appropriately (as json vs html)
-        page = requests.get(url, headers=headers)
-        if watcher['type'] == 'json':
-            parsed = json.loads(page.text)
-        else:
-            parsed = BeautifulSoup(page.text, 'html.parser')
+        try:
+            # download the page and parse it appropriately (as json vs html)
+            page = requests.get(url, headers=headers)
+            if watcher['type'] == 'json':
+                parsed = json.loads(page.text)
+            else:
+                parsed = BeautifulSoup(page.text, 'html.parser')
 
-        link, url = watcher['selector'](parsed, url)
+            link, open_url = watcher['selector'](parsed, watcher)
 
         except Exception as e:
-            print 'Scraping %s failed for some reason' %watcher['url'], str(datetime.datetime.now())
+            print '%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e))
             link = False
 
-        if len(watcher['last_link'].keys()) > 0 and link not in watcher['last_link'] and link:
-            if watcher['type'] == 'json':
-                for doc in parsed:
-                    if watcher['name'] == 'IPR2017-00195':
-                        dec_types = ['Decision Granting Institution', 'Decision Denying Institution']
-                        if any(doc['paperTypeName'] == dec_type for dec_type in dec_types):
-                            url = make_url(doc, url)
-                            break
-                    else:
-                        if doc['paperTypeName'] == 'Final Decision':
-                            url = make_url(doc, url)
-                            break
-            if os.name == 'nt':
-                cmd = 'start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url
-            else:
-                cmd = "open '%s'" %url
+        if len(watcher['last_link']) > 0 and link not in watcher['last_link'] and link:
+            cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"'
+                   if os.name == 'nt' else "open '%s'") %open_url
             os.system(cmd)
 
             if os.name == 'nt':
@@ -145,9 +135,9 @@ def loop(watcher):
             else:
                 os.system("say '%s'" % watcher['name'])
 
-            print watcher['name'] + " " +str(datetime.datetime.now())
+            print '%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name'])
 
-        watcher['last_link'][link] = True
+        watcher['last_link'].add(link)
         time.sleep(watcher['delay'])
 
 
@@ -220,118 +210,94 @@ watchmen = [
         # ABBV CHRS Humira, due 5/17
         'name': 'IPR2016-00172',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
-        'selector': get_ptab_uspto,
-        'delay': 30,
         'sound': 'C:\\Windows\Media\abbv_chrs.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         # ACOR-CAD Ampyra, IPRS 1850 1853 1857 1858 all due by 3/11
         'name': 'IPR2015-01853',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459705/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\acor_bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         'name': 'IPR2015-01850',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459994/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\acor_bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         'name': 'IPR2015-01857',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459733/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\acor_bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         'name': 'IPR2015-01858',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463318/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\acor_bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         # NVLN - CAD Juxtapid, IPRs 1835 1836 due 3/7
         'name': 'IPR2015-01835',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464072/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         'name': 'IPR2015-01836',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459986/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         # BIIB - CAD Tecfidera, due 3/22
         'name': 'IPR2015-01993',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\biib_bass.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         # MYL - TEVA Copaxone, institution decision due by May
         'name': 'IPR2017-00195',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\teva.wav',
         'type': 'json',
-        'timestamp': True
+        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution']
     },
     {
         # Pozen - Lupin IPRs 01773 01775, decision due 3/1
         'name': 'IPR2015-01773',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464068/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\pozn.wav',
         'type': 'json',
-        'timestamp': True
     },
     {
         'name': 'IPR2015-01775',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463283/documents?availability=PUBLIC&cacheFix=',
-        'delay': 30,
-        'selector': get_ptab_uspto,
         'sound': 'C:\\Windows\Media\pozn.wav',
         'type': 'json',
-        'timestamp': True
     },
 
 ]
 
 for watcher in watchmen:
     # set some defaults
-    watcher['last_link'] = {}
-    watcher['delay'] = watcher.get('delay', 0.5)
-    watcher['type'] = watcher.get('type', 'soup')
-    watcher['selector'] = watcher.get('selector', get_rss)
-    watcher['timestamp'] = watcher.get('timestamp', False)
+    watcher['last_link'] = set()
     watcher['name'] = watcher.get('name', watcher['url'])
+    watcher['type'] = watcher.get('type', 'soup')
+    if watcher['type'] == 'soup':
+        watcher['delay'] = watcher.get('delay', 0.5)
+        watcher['selector'] = watcher.get('selector', get_rss)
+        watcher['timestamp'] = watcher.get('timestamp', False)
+    else:
+        # defaults specifically for json parsing, which for now is exclusively
+        # done on https://ptab.uspto.gov
+        watcher['delay'] = watcher.get('delay', 30)
+        watcher['selector'] = watcher.get('selector', get_ptab_uspto)
+        watcher['timestamp'] = watcher.get('timestamp', True)
+        watcher['dec_types'] = watcher.get('dec_types', ['Final Decision'])
 
     t = threading.Thread(target=loop, args=(watcher,))
     t.daemon = True
