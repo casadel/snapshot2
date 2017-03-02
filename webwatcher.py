@@ -267,18 +267,12 @@ watchmen = [
         'dec_types': ['Decision Granting Institution', 'Decision Denying Institution']
     },
     {
-        # Pozen - Lupin IPRs 01773 01775, decision due 3/1
-        'name': 'IPR2015-01773',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464068/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\pozn.wav',
+        # AZN - MYL war on AstraZeneca, decision due 5/2
+        'name': 'IPR2015-01340',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Azn_myl.wav',
         'type': 'json',
-    },
-    {
-        'name': 'IPR2015-01775',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463283/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\pozn.wav',
-        'type': 'json',
-    },
+    }
 
 ]
 
