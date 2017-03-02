@@ -267,7 +267,7 @@ watchmen = [
         'dec_types': ['Decision Granting Institution', 'Decision Denying Institution']
     },
     {
-        # AZN - MYL war on AstraZeneca, decision due 5/2
+        # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
         'name': 'IPR2015-01340',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
         'sound': 'C:\\Windows\Media\Azn_myl.wav',
