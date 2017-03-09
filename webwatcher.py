@@ -214,13 +214,6 @@ watchmen = [
         'type': 'json',
     },
     {
-        # NVDQ test case, due 3/10
-        'name': 'IPR2015-01847',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459702/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Court.wav',
-        'type': 'json'
-    },
-    {
         # ACOR-CAD Ampyra, IPRS 1850 1853 1857 1858 all due by 3/11
         'name': 'IPR2015-01853',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459705/documents?availability=PUBLIC&cacheFix=',
