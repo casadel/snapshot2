@@ -103,6 +103,9 @@ headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
         }
 
+# disable SSL warning
+requests.packages.urllib3.disable_warnings()
+
 def loop(watcher):
     while True:
         # append the current unix timestamp to the URL if necessary
@@ -112,8 +115,8 @@ def loop(watcher):
             url = append_timestamp(url)
 
         try:
-            # download the page and parse it appropriately (as json vs html)
-            page = requests.get(url, headers=headers)
+            # download the page and parse it appropriately (as json vs html). don't verify the SSL certificate.
+            page = requests.get(url, headers=headers, verify=False)
             if watcher['type'] == 'json':
                 parsed = json.loads(page.text)
             else:
