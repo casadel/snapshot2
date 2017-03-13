@@ -14,9 +14,12 @@ import threading
 import json
 import conclusion
 import uuid
+import codecs
 
 if os.name == 'nt':
     import winsound
+
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 def append_timestamp(url):
     return url + str(int((datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds() * 1000))
@@ -116,7 +119,7 @@ def new_data_ptab(page, watcher):
             pdf = requests.get(url, headers=headers)
             with open(filename, 'wb') as file:
                 file.write(pdf.content)
-            open_url(filename, watcher)
+            open_url(os.path.dirname(os.path.abspath(__file__)) + '/' + filename, watcher)
             conc = conclusion.find_conclusion(filename)
             print("\n\n\n\n\n\n" + watcher['name'] + "\n" + conc + "\n")
 
