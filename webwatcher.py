@@ -50,55 +50,10 @@ def get_rss(soup, watcher):
     link = article.find('link').text
     return link, link
 
-def get_gotham(soup, watcher):
-    article = soup.find('article')
-    link = article.find('a')['href']
-    return link, link
-
 def get_ctfn(soup, watcher):
     last_pubs = soup.find_all('ul', {'class': 'last-published-contents'})[0]
     last_symbol = last_pubs.find('li').find('strong').text
     return last_symbol, watcher['url']
-
-# DC District
-def get_dcd(soup, watcher):
-    case = soup.find('item')
-    title = case.find('title').text
-    #case_number = '1:16-cv-01493' #US v ANTM
-    #if case_number in title:
-    return title, watcher['url']
-    #else:
-    #    return False, False
-
-# Delaware district
-def get_ded(soup, watcher):
-    case = soup.find('item')
-    title = case.find('title').text
-    case_numbers = ['1:16-cv-01267', '1:16-cv-01243'] #JUNO-KITE TEVA-various
-    if any(case_number in title for case_number in case_numbers):
-        return title, watcher['url']
-    else:
-        return False, False
-
-# Federal Circuit Court of Appeals
-def get_cafc(soup, watcher):
-    case = soup.find('item')
-    title = case.find('title').text
-    case_numbers = ['17-1480', '17-1575'] #AMGN-SNY TEVA-Sandoz
-    if any(case_number in title for case_number in case_numbers):
-        return title, watcher['url']
-    else:
-        return False, False
-
-# DC Circuit Court of Appeals
-def get_cadc(soup, watcher):
-    case = soup.find('item')
-    title = case.find('title').text
-    case_number = '17-5024' #US-ANTM appeal
-    if case_number in title:
-        return title, watcher['url']
-    else:
-        return False, False
 
 def get_ptab_uspto(page, watcher):
     return len(page), page
@@ -193,106 +148,80 @@ watchmen = [
         'sound': 'C:\\Windows\Media\MW.wav'
     },
     {
-        'url': 'http://www.sprucepointcap.com/research/feed',
-        'delay': 1,
-        'sound': 'C:\\Windows\Media\spruce.wav'
-    },
-# XXX site seems down
-    #{
-    #    'url': 'http://www.presciencepoint.com/research/feed',
-    #    'sound': 'C:\\Windows\Media\prescience.wav'
-    #},
-    {
         'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
         'delay': 2,
         'sound': 'C:\\Windows\Media\fda.wav'
     },
-    #{
-    #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
-    #    'sound': 'C:\\Windows\Media\tsla.wav'
-    #},
     {
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
         'sound': 'C:\\Windows\Media\ctfn.wav'
     },
     #{
-    #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/rss_outside.pl',
-    #    'selector': get_dcd,
-    #    'delay': 3,
-    #    'sound': 'C:\\Windows\Media\court.wav'
+    #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
+    #    'sound': 'C:\\Windows\Media\tsla.wav'
     #},
     #{
-    #    'url': 'https://ecf.ded.uscourts.gov/cgi-bin/rss_outside.pl',
-    #    'selector': get_ded,
-    #    'delay': 3,
-    #    'sound': 'C:\\Windows\Media\court.wav'
+    #    'url': 'http://www.sprucepointcap.com/research/feed',
+    #    'delay': 1,
+    #    'sound': 'C:\\Windows\Media\spruce.wav'
     #},
     #{
-    #    'url': 'https://ecf.cafc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator',
-    #    'selector': get_cafc,
-    #    'delay': 4,
-    #    'sound': 'C:\\Windows\Media\court.wav'
+    #    'url': 'http://www.presciencepoint.com/research/feed',
+    #    'sound': 'C:\\Windows\Media\prescience.wav'
     #},
-    #{
-    #    'url': 'https://ecf.cadc.uscourts.gov/cmecf/servlet/TransportRoom?servlet=RSSGenerator',
-    #    'selector': get_cadc,
-    #    'delay': 2,
-    #    'sound': 'C:\\Windows\Media\court.wav'
-    #},
-    {
-        # ABBV CHRS Humira, due 5/17
-        'name': 'IPR2016-00172',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\abbv_chrs.wav',
-        'type': 'json',
-    },
-    {
-        # ACOR-CAD Ampyra, IPRS 1850 1853 1857 1858 all due by 3/11
-        'name': 'IPR2015-01853',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459705/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\acor_bass.wav',
-        'type': 'json',
-    },
-    {
-        'name': 'IPR2015-01850',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459994/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\acor_bass.wav',
-        'type': 'json',
-    },
-    {
-        'name': 'IPR2015-01857',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459733/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\acor_bass.wav',
-        'type': 'json',
-    },
-    {
-        'name': 'IPR2015-01858',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463318/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\acor_bass.wav',
-        'type': 'json',
-    },
+    
+    # PTAB
     {
         # BIIB - CAD Tecfidera, due 3/22
         'name': 'IPR2015-01993',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\biib_bass.wav',
+        'sound': 'C:\\Windows\Media\Biib_bass.wav',
         'type': 'json',
-    },
-    {
-        # MYL - TEVA Copaxone, institution decision due by May
-        'name': 'IPR2017-00195',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\teva.wav',
-        'type': 'json',
-        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution']
     },
     {
         # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
         'name': 'IPR2015-01340',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
         'sound': 'C:\\Windows\Media\Azn_myl.wav',
+        'type': 'json'
+    },
+    {
+        # ABBV CHRS Humira, due 5/17
+        'name': 'IPR2016-00172',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Abbv.wav',
         'type': 'json',
+    },
+    {
+        # EW - BSX, institution decision due ~ April
+        'name': 'IPR2017-00444',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1477074/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\EW.wav',
+        'type': 'json',
+        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    },
+    {
+        'name': 'IPR2017-00072',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472314/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\EW.wav',
+        'type': 'json',
+        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    },
+    {
+        'name': 'IPR2017-00060',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472154/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\EW.wav',
+        'type': 'json',
+        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    },
+    {
+        # MYL - TEVA Copaxone, institution decision due by May
+        'name': 'IPR2017-00195',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Teva.wav',
+        'type': 'json',
+        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     }
 
 ]
@@ -310,10 +239,10 @@ for watcher in watchmen:
     else:
         # defaults specifically for json parsing, which for now is exclusively
         # done on https://ptab.uspto.gov
-        watcher['delay'] = watcher.get('delay', 3)
+        watcher['delay'] = watcher.get('delay', 30)
         watcher['selector'] = watcher.get('selector', get_ptab_uspto)
         watcher['timestamp'] = watcher.get('timestamp', True)
-        watcher['dec_types'] = watcher.get('dec_types', ['Final Decision'])
+        watcher['dec_types'] = watcher.get('dec_types', ['Final Decision', 'Termination Decision Document'])
         watcher['new_data_handler'] = watcher.get('new_data_handler', new_data_ptab)
 
     t = threading.Thread(target=loop, args=(watcher,))
@@ -322,4 +251,5 @@ for watcher in watchmen:
 
 while True:
     time.sleep(1)
+
 
