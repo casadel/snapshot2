@@ -1,0 +1,26 @@
+IPR2015-01465
+III.CONCLUSION
+Petitioner has demonstrated, by a preponderance of the evidence, that:
+Claims 1–5, 10–16, 19, 22–26, 31, 35, 36, 38–46, 51, 52, and 54–58 are unpatentable as obvious over VDM;
+Claims 9, 27, 37, and 53 are unpatentable as obvious over VDM and Oppermann;
+Claims 17, 20, 47, and 49 are unpatentable as obvious over VDM and Robbin;
+Claims 18 and 48 are unpatentable as obvious over VDM and Arnalds; and
+Claims 21 and 50 are unpatentable as obvious over VDM and Levy.
+
+IV. CONCLUSION
+For the reasons explained above, having considered the parties’
+contentions and supporting evidence, we determine Petitioner has shown by a preponderance of the evidence the subject matter of claims 1 and 2 would have been obvious over Allen, Breen, and Castleman and that those claims are therefore unpatentable under 35 U.S.C. § 103(a).
+
+III. CONCLUSION
+Petitioner has shown, by a preponderance of the evidence, that claims
+1–3, 5, 9, 11–13, 15, 19, and 22 are unpatentable under 35 U.S.C. § 103 as obvious over iMac Fan.
+Petitioner has shown, by a preponderance of the evidence, that claims 1–3, 5, 9, 11–13, 15, 19, and 22 are unpatentable under 35 U.S.C. § 103 as obvious over Tanaka.
+Petitioner has shown, by a preponderance of the evidence, that claims 1–3, 9, 11–13, 19, and 22 are unpatentable under 35 U.S.C. § 103 as obvious over Wu and Nishikawa.
+Petitioner has shown, by a preponderance of the evidence, that claims 5 and 15 are unpatentable under 35 U.S.C. § 103 as obvious over Wu, Nishikawa, and Fushimoto.
+
+III. CONCLUSION
+Microsoft has established by a preponderance of evidence that claims 1, 3, 6, 7, 9, 10, 11, 12, 14, 22, and 23 are unpatentable as anticipated and claims 1, 3, and 10 are unpatentable as being directed to obvious subject matter. Microsoft has not established by a preponderance of evidence that claim 24 is unpatentable.
+
+III. CONCLUSION
+Microsoft has met its burden of proof by a preponderance of the
+evidence in showing that claims 1–52 of the ’403 patent are unpatentable based on the following grounds of unpatentability:
