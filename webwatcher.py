@@ -64,6 +64,7 @@ def new_data_ptab(page, watcher):
 
     page = json.loads(page)
 
+    opened = False
     for doc in page:
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
             url = make_url(doc, watcher['url'])
@@ -77,6 +78,11 @@ def new_data_ptab(page, watcher):
             open_url(os.path.dirname(os.path.abspath(__file__)) + '/' + filename, watcher)
             conc = conclusion.find_conclusion(filename)
             print("\n\n\n\n\n\n" + watcher['name'] + "\n" + conc + "\n")
+            opened = True
+            break
+
+    if not opened:
+        open_url('https://ptab.uspto.gov/#/login', watcher)
 
 ###############################################################################
 
@@ -122,7 +128,7 @@ def loop(watcher):
             except Exception as e:
                 eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
                 # try again next loop
-                add_to_prev_set = False
+                # add_to_prev_set = False
 
         if add_to_prev_set:
             watcher['prev'].add(prev)
