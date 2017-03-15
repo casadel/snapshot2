@@ -90,7 +90,8 @@ class PDFPage(object):
             if tree.get('Type') is LITERAL_PAGES and 'Kids' in tree:
                 if klass.debug: logging.info('Pages: Kids=%r' % tree['Kids'])
                 kids = list_value(tree['Kids'])
-                for i in xrange(len(kids) - 1, 0, -1):
+                for i in xrange(len(kids) - 1, -1, -1):
+                #for i in xrange(len(kids)):
                     c = kids[i]
                     for x in search(c, tree):
                         yield x
