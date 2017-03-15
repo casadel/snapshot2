@@ -1,5 +1,6 @@
 import math
 import sys
+import re
 
 import pdfminer2
 
@@ -164,11 +165,11 @@ def parse_page(current_page, pages):
 
     for i in range(len(page)):
         line = page[i][0]
-        if '. CONCLUSION' in line:
+        if re.search('\.\s*CONCLUSION', line) is not None:
             s = ""
             while True:
                 line = page[i][0]
-                if '. ORDER' in line:
+                if re.search('\.\s*ORDER', line) is not None:
                     break
                 s += line
                 i += 1
