@@ -24,16 +24,42 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 def append_timestamp(url):
     return url + str(int((datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds() * 1000))
 
-def open_url(url, watcher):
-    cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"'
-        if os.name == 'nt' else "open '%s'") %url
-    subprocess.Popen(cmd, shell=True)
-    print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
-
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 ###############################################################
+# RETRIEVERS retrieve the relevant page and return the soup to be parsed
+
+def page_retriever(url):
+    page = requests.get(url, headers=headers)
+    parsed = BeautifulSoup(page.text, 'html.parser')
+    return parsed
+
+def ptab_retriever(url):
+    url = append_timestamp(url)
+    page = requests.get(url, headers=headers)
+    parsed = page.content
+    return parsed
+
+def pacer_retriever(url):
+    cookies = {}
+    payload = {'login': 'heusenvon', 'key': 'Ca$adelt'}
+    data =  {'filed_from': filed_from, 'filed_to': filed_to, 'Key1': 'de_date_filed'}
+    
+    page = requests.post(url, data=payload, headers=headers)
+    result = re.search('PacerSession=(.+?);', page.content)
+    cookies['PacerSession'] = result.group(1)
+
+    result = re.search('WrtOpRpt\.pl(\?\d+-L_1_0-1)', page.content)
+    suffix = result.group(1)
+
+    # perform the search and retrieve the page
+    page2 = requests.post(url + suffix, data=data, cookies=cookies, headers=headers)
+    soup = BeautifulSoup(page2.text, 'html.parser')
+    return soup
+
+###############################################################
+# SELECTORS find the info within the soup to be monitored
 
 def get_nypost(soup, watcher):
     article = soup.find('item')
@@ -58,6 +84,27 @@ def get_ctfn(soup, watcher):
 def get_ptab_uspto(page, watcher):
     return len(page), page
 
+def pacer_selector(soup, watcher):
+    case = soup.find('table').find_all('tr')[-1]
+    link = case.find_all('td')[2].find('a')['href']
+    case_name = case.find_all('td')[1].text
+    case_nos = watcher['case_nos']
+    if any(case_no in case_name for case_no in case_nos):
+        sound_file = 'C:\\Windows\Media\%s.wav' %case_no
+        watcher['sound'] = watcher.get('sound', sound_file)
+        return link, link
+    else:
+        return False, False
+
+#################################################################
+# HANDLERS triggered when a change occurs
+
+def open_url(url, watcher):
+    cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"'
+        if os.name == 'nt' else "open '%s'") %url
+    subprocess.Popen(cmd, shell=True)
+    print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
+
 def new_data_ptab(page, watcher):
     def make_url(doc, url):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
@@ -68,16 +115,16 @@ def new_data_ptab(page, watcher):
     for doc in page:
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
             url = make_url(doc, watcher['url'])
-
+            open_url(url, watcher)
+            
             filename = 'tmp/' + str(uuid.uuid4()) + '.pdf'
 
             # download and save the pdf
             pdf = requests.get(url, headers=headers)
             with open(filename, 'wb') as file:
                 file.write(pdf.content)
-            open_url(os.path.dirname(os.path.abspath(__file__)) + '/' + filename, watcher)
             conc = conclusion.find_conclusion(filename)
-            print("\n\n\n\n\n\n" + watcher['name'] + "\n" + conc + "\n")
+            print("\n\n\n" + watcher['name'] + "\n" + conc + "\n")
             opened = True
             break
 
@@ -85,38 +132,30 @@ def new_data_ptab(page, watcher):
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
 ###############################################################################
+#  SCRAPER method to monitor the list of sites
 
 headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'
         }
 
+today = datetime.datetime.now()
+DD = datetime.timedelta(days=3)
+filed_from = today - DD
+filed_from = filed_from.strftime("%m/%d/%Y")
+filed_to = today.strftime("%m/%d/%Y")
+
 def loop(watcher):
     while True:
-        # append the current unix timestamp to the URL if necessary
-        # (ptab.uspto.gov requires it)
         url = watcher['url']
-        if watcher['timestamp']:
-            url = append_timestamp(url)
 
         try:
-            # download the page and parse it appropriately (as json vs html)
-            page = requests.get(url, headers=headers)
-
-            if watcher['type'] == 'json':
-                # to make the loop a bit faster, no longer parse the json here
-                # switch from page.text to page.content, since page.text requires a slow conversion to unicode
-                # parsed = json.loads(page.text)
-                parsed = page.content
-            else:
-                parsed = BeautifulSoup(page.text, 'html.parser')
-
+            parsed = watcher['retriever'](url)
             prev, data = watcher['selector'](parsed, watcher)
 
         except Exception as e:
             eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
             prev = False
 
-        add_to_prev_set = True
         if len(watcher['prev']) > 0 and prev not in watcher['prev'] and prev:
             if os.name == 'nt':
                 winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
@@ -124,16 +163,15 @@ def loop(watcher):
                 subprocess.Popen("say '%s'" % watcher['name'], shell=True)
 
             try:
-                watcher['new_data_handler'](data, watcher)
+                watcher['data_handler'](data, watcher)
             except Exception as e:
                 eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
-                # try again next loop
-                # add_to_prev_set = False
 
-        if add_to_prev_set:
-            watcher['prev'].add(prev)
+        watcher['prev'].add(prev)
         time.sleep(watcher['delay'])
 
+##########################################################
+#PAGES
 
 watchmen = [
     {
@@ -179,13 +217,6 @@ watchmen = [
     
     # PTAB
     {
-        # BIIB - CAD Tecfidera, due 3/22
-        'name': 'IPR2015-01993',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Biib_bass.wav',
-        'type': 'json',
-    },
-    {
         # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
         'name': 'IPR2015-01340',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
@@ -228,8 +259,27 @@ watchmen = [
         'sound': 'C:\\Windows\Media\Teva.wav',
         'type': 'json',
         'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    },
+    
+    # PACER
+    {
+        'name': 'Delaware Dist. Court',
+        'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'type': 'pacer',
+        'case_nos': ['1:14-cv-00882', '1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:16-cv-00666']
+    },
+    {
+        'name': 'Illinois Northern Dist. Court',
+        'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'type': 'pacer',
+        'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
+    },
+    {
+        'name': 'NJ Dist. Court',
+        'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'type': 'pacer',
+        'case_nos': ['2:16-cv-01118', '2:15-cv-01360']
     }
-
 ]
 
 for watcher in watchmen:
@@ -237,20 +287,28 @@ for watcher in watchmen:
     watcher['prev'] = set()
     watcher['name'] = watcher.get('name', watcher['url'])
     watcher['type'] = watcher.get('type', 'soup')
+    
     if watcher['type'] == 'soup':
         watcher['delay'] = watcher.get('delay', 0.5)
-        watcher['selector'] = watcher.get('selector', get_rss)
         watcher['timestamp'] = watcher.get('timestamp', False)
-        watcher['new_data_handler'] = watcher.get('new_data_handler', open_url)
-    else:
-        # defaults specifically for json parsing, which for now is exclusively
-        # done on https://ptab.uspto.gov
+        watcher['retriever'] = watcher.get('retriever', page_retriever)
+        watcher['selector'] = watcher.get('selector', get_rss)
+        watcher['data_handler'] = watcher.get('data_handler', open_url)
+    
+    elif watcher['type'] == 'json':
         watcher['delay'] = watcher.get('delay', 30)
-        watcher['selector'] = watcher.get('selector', get_ptab_uspto)
         watcher['timestamp'] = watcher.get('timestamp', True)
         watcher['dec_types'] = watcher.get('dec_types', ['Final Decision', 'Termination Decision Document'])
-        watcher['new_data_handler'] = watcher.get('new_data_handler', new_data_ptab)
-
+        watcher['retriever'] = watcher.get('retriever', ptab_retriever)
+        watcher['selector'] = watcher.get('selector', get_ptab_uspto)
+        watcher['data_handler'] = watcher.get('data_handler', new_data_ptab)
+    
+    elif watcher['type'] == 'pacer':
+        watcher['delay'] = watcher.get('delay', 5)
+        watcher['data_retriever'] = watcher.get('retriever', pacer_retriever)
+        watcher['selector'] = watcher.get('selector', pacer_selector)
+        watcher['data_handler'] = watcher.get('data_handler', open_url)
+    
     t = threading.Thread(target=loop, args=(watcher,))
     t.daemon = True
     t.start()
