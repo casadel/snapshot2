@@ -312,7 +312,7 @@ for watcher in watchmen:
     
     elif watcher['type'] == 'pacer':
         watcher['delay'] = watcher.get('delay', 5)
-        watcher['data_retriever'] = watcher.get('retriever', pacer_retriever)
+        watcher['retriever'] = watcher.get('retriever', pacer_retriever)
         watcher['selector'] = watcher.get('selector', pacer_selector)
         watcher['data_handler'] = watcher.get('data_handler', open_pacer)
     
