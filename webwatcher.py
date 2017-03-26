@@ -55,8 +55,8 @@ def pacer_retriever(url):
 
     # perform the search and retrieve the page
     page2 = requests.post(url + suffix, data=data, cookies=cookies, headers=headers)
-    soup = BeautifulSoup(page2.text, 'html.parser')
-    return soup
+    parsed = BeautifulSoup(page2.text, 'html.parser')
+    return parsed
 
 ###############################################################
 # SELECTORS find the info within the soup to be monitored
@@ -266,19 +266,19 @@ watchmen = [
         'name': 'Delaware Dist. Court',
         'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'type': 'pacer',
-        'case_nos': ['1:14-cv-00882', '1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:16-cv-00666']
+        'case_nos': ['1:14-cv-00882', '1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:16-cv-00666'] #ACOR, JUNO/KITE, TEVA, MNK/PX, ABBV/AMGN
     },
     {
         'name': 'Illinois Northern Dist. Court',
         'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'type': 'pacer',
-        'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
+        'case_nos': ['1:16-cv-08637', '1:16-cv-07145'] #TSN/SAFM/PPC, SRCL
     },
     {
         'name': 'NJ Dist. Court',
         'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'type': 'pacer',
-        'case_nos': ['2:16-cv-01118', '2:15-cv-01360']
+        'case_nos': ['2:16-cv-01118', '2:15-cv-01360'] #AMGN, JAZZ
     }
 ]
 
