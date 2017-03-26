@@ -131,6 +131,13 @@ def new_data_ptab(page, watcher):
     if not opened:
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
+def open_pacer(url, watcher):
+    def make_url(url):
+        url = url.split('//')
+        url = url[0] + '//heusenvon:Ca$adelt@' + url[1]
+    url = make_url(url)
+    open_url(url, watcher)
+    
 ###############################################################################
 #  SCRAPER method to monitor the list of sites
 
@@ -266,19 +273,19 @@ watchmen = [
         'name': 'Delaware Dist. Court',
         'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'type': 'pacer',
-        'case_nos': ['1:14-cv-00882', '1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:16-cv-00666'] #ACOR, JUNO/KITE, TEVA, MNK/PX, ABBV/AMGN
+        'case_nos': ['1:14-cv-00882', '1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:16-cv-00666']
     },
     {
         'name': 'Illinois Northern Dist. Court',
         'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'type': 'pacer',
-        'case_nos': ['1:16-cv-08637', '1:16-cv-07145'] #TSN/SAFM/PPC, SRCL
+        'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
     },
     {
         'name': 'NJ Dist. Court',
         'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'type': 'pacer',
-        'case_nos': ['2:16-cv-01118', '2:15-cv-01360'] #AMGN, JAZZ
+        'case_nos': ['2:16-cv-01118', '2:15-cv-01360']
     }
 ]
 
@@ -307,7 +314,7 @@ for watcher in watchmen:
         watcher['delay'] = watcher.get('delay', 5)
         watcher['data_retriever'] = watcher.get('retriever', pacer_retriever)
         watcher['selector'] = watcher.get('selector', pacer_selector)
-        watcher['data_handler'] = watcher.get('data_handler', open_url)
+        watcher['data_handler'] = watcher.get('data_handler', open_pacer)
     
     t = threading.Thread(target=loop, args=(watcher,))
     t.daemon = True
