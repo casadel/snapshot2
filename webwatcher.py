@@ -223,50 +223,60 @@ watchmen = [
     #},
     
     # PTAB
-    {
-        # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
-        'name': 'IPR2015-01340',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Azn_myl.wav',
-        'type': 'json'
-    },
-    {
-        # ABBV CHRS Humira, due 5/17
-        'name': 'IPR2016-00172',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Abbv.wav',
-        'type': 'json',
-    },
-    {
-        # EW - BSX, institution decision due ~ April
-        'name': 'IPR2017-00444',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1477074/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\EW.wav',
-        'type': 'json',
-        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    },
-    {
-        'name': 'IPR2017-00072',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472314/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\EW.wav',
-        'type': 'json',
-        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    },
-    {
-        'name': 'IPR2017-00060',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472154/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\EW.wav',
-        'type': 'json',
-        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    },
-    {
-        # MYL - TEVA Copaxone, institution decision due by May
-        'name': 'IPR2017-00195',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Teva.wav',
-        'type': 'json',
-        'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    },
+    #{
+    #    # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
+    #    'name': 'IPR2015-01340',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\Azn_myl.wav',
+    #    'type': 'json',
+    #    'delay': 30
+    #},
+    #{
+    #    # ABBV CHRS Humira, due 5/17
+    #    'name': 'IPR2016-00172',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\Abbv_chrs.wav',
+    #    'type': 'json'
+    #    #'delay': 30
+    #},
+    #{
+         # REGN AMGN dupixent preliminary
+    #    'name': 'IPR2017-01129',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1485794/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\EW.wav',
+    #    'type': 'json',
+    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    #},
+    #{
+    #    # EW - BSX, institution decision due ~ April
+    #    'name': 'IPR2017-00444',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1477074/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\EW.wav',
+    #    'type': 'json',
+    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    #},
+    #{
+    #    'name': 'IPR2017-00072',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472314/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\EW.wav',
+    #    'type': 'json',
+    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    #},
+    #{
+    #    'name': 'IPR2017-00060',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472154/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\EW.wav',
+    #    'type': 'json',
+    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    #},
+    #{
+    #    # MYL - TEVA Copaxone, institution decision due by May
+    #    'name': 'IPR2017-00195',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\Teva.wav',
+    #    'type': 'json',
+    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    #}, 
     
     # PACER
     {
