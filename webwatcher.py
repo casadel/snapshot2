@@ -15,6 +15,7 @@ import json
 import conclusion
 import uuid
 import codecs
+import re
 
 if os.name == 'nt':
     import winsound
