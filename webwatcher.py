@@ -16,9 +16,7 @@ import conclusion
 import uuid
 import codecs
 import re
-
-if os.name == 'nt':
-    import winsound
+import winsound
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
@@ -83,49 +81,48 @@ def get_ctfn(soup, watcher):
     return last_symbol, watcher['url']
 
 def get_ptab_uspto(page, watcher):
+    #import random
+    #return random.random(), page
     return len(page), page
 
 def pacer_selector(soup, watcher):
     case = soup.find('table').find_all('tr')[-1]
     link = case.find_all('td')[2].find('a')['href']
     case_name = case.find_all('td')[1].text
-    case_nos = watcher['case_nos']
-    if any(case_no in case_name for case_no in case_nos):
-        sound_file = 'C:\\Windows\Media\%s.wav' %case_no
-        watcher['sound'] = watcher.get('sound', sound_file)
-        return link, link
-    else:
-        return False, False
+    watcher['name'] = case_name
+    return link, link
+    #else:
+    #    return False, False
 
 #################################################################
 # HANDLERS triggered when a change occurs
 
 def open_url(url, watcher):
-    cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"'
-        if os.name == 'nt' else "open '%s'") %url
+    cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
+    if watcher['type'] != 'json':
+        winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
     print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
 
 def new_data_ptab(page, watcher):
     def make_url(doc, url):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
+    winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
     page = json.loads(page)
-
     opened = False
     for doc in page:
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
             url = make_url(doc, watcher['url'])
             open_url(url, watcher)
-            
-            filename = 'tmp/' + str(uuid.uuid4()) + '.pdf'
 
-            # download and save the pdf
+            filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
             pdf = requests.get(url, headers=headers)
             with open(filename, 'wb') as file:
                 file.write(pdf.content)
             conc = conclusion.find_conclusion(filename)
-            print("\n\n\n" + watcher['name'] + "\n" + conc + "\n")
+            winsound.Beep(440, 500)
+            print("\n\n" + watcher['name'] + "\n" + conc + "\n")
             opened = True
             break
 
@@ -133,11 +130,14 @@ def new_data_ptab(page, watcher):
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
 def open_pacer(url, watcher):
-    def make_url(url):
-        url = url.split('//')
-        url = url[0] + '//heusenvon:Ca$adelt@' + url[1]
-    url = make_url(url)
-    open_url(url, watcher)
+    winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+    case_nos = watcher['case_nos']
+    if any(case_no in watcher['name'] for case_no in case_nos):
+    #    sound_file = 'C:\\Windows\Media\%s.wav' %case_no
+    #    watcher['sound'] = watcher.get('sound', sound_file)
+        cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
+        subprocess.Popen(cmd, shell=True)
+    print(str(datetime.datetime.now()), watcher['name'], watcher['url'])
     
 ###############################################################################
 #  SCRAPER method to monitor the list of sites
@@ -147,7 +147,7 @@ headers = {
         }
 
 today = datetime.datetime.now()
-DD = datetime.timedelta(days=3)
+DD = datetime.timedelta(days=2)
 filed_from = today - DD
 filed_from = filed_from.strftime("%m/%d/%Y")
 filed_to = today.strftime("%m/%d/%Y")
@@ -159,22 +159,18 @@ def loop(watcher):
         try:
             parsed = watcher['retriever'](url)
             prev, data = watcher['selector'](parsed, watcher)
-
+            if watcher['type'] == 'json':
+                print ('scraped ptab', str(datetime.datetime.now()))
         except Exception as e:
-            eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
+            eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
             prev = False
 
         if len(watcher['prev']) > 0 and prev not in watcher['prev'] and prev:
-            if os.name == 'nt':
-                winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
-            else:
-                subprocess.Popen("say '%s'" % watcher['name'], shell=True)
-
             try:
+                #winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
                 watcher['data_handler'](data, watcher)
             except Exception as e:
                 eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
-
         watcher['prev'].add(prev)
         time.sleep(watcher['delay'])
 
@@ -189,7 +185,7 @@ watchmen = [
     },
     {
         'url': 'http://www.citronresearch.com/feed',
-        'sound': 'C:\\Windows\Media\citron.wav'
+        'sound': 'C:\\Windows\Media\Citron.wav'
     },
     {
         'url': 'http://sirf-online.org/feed/',
@@ -202,12 +198,12 @@ watchmen = [
     {
         'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
         'delay': 2,
-        'sound': 'C:\\Windows\Media\fda.wav'
+        'sound': 'C:\\Windows\Media\FDA.wav'
     },
     {
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
-        'sound': 'C:\\Windows\Media\ctfn.wav'
+        'sound': 'C:\\Windows\Media\CTFN.wav'
     },
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
@@ -218,10 +214,10 @@ watchmen = [
     #    'delay': 1,
     #    'sound': 'C:\\Windows\Media\spruce.wav'
     #},
-    #{
-    #    'url': 'http://www.presciencepoint.com/research/feed',
-    #    'sound': 'C:\\Windows\Media\prescience.wav'
-    #},
+    {
+        'url': 'http://www.presciencepoint.com/research/feed',
+        'sound': 'C:\\Windows\Media\prescience.wav'
+    },
     
     # PTAB
     #{
@@ -277,26 +273,35 @@ watchmen = [
     #    'sound': 'C:\\Windows\Media\Teva.wav',
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    #}, 
-    
+    #},
     # PACER
     {
         'name': 'Delaware Dist. Court',
         'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['1:14-cv-00882', '1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:16-cv-00666']
+        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666', '	1:14-cv-00955']
     },
     {
-        'name': 'Illinois Northern Dist. Court',
-        'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'name': 'Cali. Southern Dist. Court',
+        'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': "C:\\Windows\Media\Court case audio\BOFI.wav",
         'type': 'pacer',
-        'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
+        'case_nos': ['3:15-cv-02287', '3:15-cv-02353', '3:15-cv-02324', '3:15-cv-02486']
     },
+    #{
+    #    'name': 'Illinois Northern Dist. Court',
+    #    'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
+    #},
     {
         'name': 'NJ Dist. Court',
         'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['2:16-cv-01118', '2:15-cv-01360']
+        'case_nos': ['2:16-cv-01118', '2:15-cv-01360', '2:13-cv-00391']
     }
 ]
 
@@ -314,7 +319,7 @@ for watcher in watchmen:
         watcher['data_handler'] = watcher.get('data_handler', open_url)
     
     elif watcher['type'] == 'json':
-        watcher['delay'] = watcher.get('delay', 30)
+        watcher['delay'] = watcher.get('delay', 60)
         watcher['timestamp'] = watcher.get('timestamp', True)
         watcher['dec_types'] = watcher.get('dec_types', ['Final Decision', 'Termination Decision Document'])
         watcher['retriever'] = watcher.get('retriever', ptab_retriever)
@@ -322,7 +327,7 @@ for watcher in watchmen:
         watcher['data_handler'] = watcher.get('data_handler', new_data_ptab)
     
     elif watcher['type'] == 'pacer':
-        watcher['delay'] = watcher.get('delay', 5)
+        watcher['delay'] = watcher.get('delay', 30)
         watcher['retriever'] = watcher.get('retriever', pacer_retriever)
         watcher['selector'] = watcher.get('selector', pacer_selector)
         watcher['data_handler'] = watcher.get('data_handler', open_pacer)
