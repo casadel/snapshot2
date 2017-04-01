@@ -88,7 +88,7 @@ def get_ptab_uspto(page, watcher):
 def pacer_selector(soup, watcher):
     cases = soup.find('table').find_all('tr')
     links, case_names = map(lambda x: (x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].find('a')['href']), cases[1:])
-    return [ (x[0], x) for x in zip(links, case_names) ]
+    return [(x[0], x) for x in zip(links, case_names)]
 
 #################################################################
 # HANDLERS triggered when a change occurs
@@ -96,8 +96,7 @@ def pacer_selector(soup, watcher):
 def open_url(url, watcher):
     cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
-    if watcher['type'] != 'json':
-        winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+    winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
     print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
 
 def new_data_ptab(page, watcher):
@@ -109,9 +108,12 @@ def new_data_ptab(page, watcher):
     opened = False
     for doc in page:
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
+            #open decision in browser
             url = make_url(doc, watcher['url'])
-            open_url(url, watcher)
-
+            cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
+            subprocess.Popen(cmd, shell=True)
+            winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+            #get/parse/return conclusion
             filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
             pdf = requests.get(url, headers=headers)
             with open(filename, 'wb') as file:
@@ -121,7 +123,6 @@ def new_data_ptab(page, watcher):
             print("\n\n" + watcher['name'] + "\n" + conc + "\n")
             opened = True
             break
-
     if not opened:
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
@@ -129,11 +130,15 @@ def open_pacer((url, case_name), watcher):
     case_nos = watcher['case_nos']
     if any(case_no in case_name for case_no in case_nos):
     #    sound_file = 'C:\\Windows\Media\%s.wav' %case_no
-    #    watcher['sound'] = watcher.get('sound', sound_file)
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
         winsound.PlaySound(sound_file, winsound.SND_FILENAME)
-    print(str(datetime.datetime.now()), case_name, url)
+        print(str(datetime.datetime.now()), case_name, url)
+    else:
+        cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %watcher['url'])
+        subprocess.Popen(cmd, shell=True)
+        winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+        print(str(datetime.datetime.now()), case_name, url)
 
 ###############################################################################
 #  SCRAPER method to monitor the list of sites
@@ -152,8 +157,8 @@ def loop(watcher):
         try:
             parsed = watcher['retriever'](url)
             selected = watcher['selector'](parsed, watcher)
-            if watcher['type'] == 'json':
-                print ('scraped ptab', str(datetime.datetime.now()))
+            #if watcher['type'] == 'json':
+            #    print ('scraped ptab', str(datetime.datetime.now()))
         except Exception as e:
             eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
             selected = False
