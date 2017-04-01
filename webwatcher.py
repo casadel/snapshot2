@@ -166,10 +166,12 @@ def loop(watcher):
             eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
             selected = False
 
-        if isinstance(prev, list) and len(prev) == len(watcher['prev']):
+        # theoretically, this optimization fails if something in watcher['prev'] ends
+        # up getting *removed* from the selected list
+        if isinstance(selected, list) and len(selected) == len(watcher['prev']):
             selected = False
 
-        if isinstance(prev, tuple):
+        if isinstance(selected, tuple):
             selected = [selected]
 
         if selected:
