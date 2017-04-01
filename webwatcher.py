@@ -43,7 +43,7 @@ def ptab_retriever(url):
 def pacer_retriever(url):
     cookies = {}
     payload = {'login': 'heusenvon', 'key': 'Ca$adelt'}
-    data =  {'filed_from': filed_from, 'filed_to': filed_to, 'Key1': 'de_date_filed'}
+    data =  {'filed_from': today, 'filed_to': today, 'Key1': 'de_date_filed'}
 
     page = requests.post(url, data=payload, headers=headers)
     result = re.search('PacerSession=(.+?);', page.content)
@@ -86,13 +86,8 @@ def get_ptab_uspto(page, watcher):
     return len(page), page
 
 def pacer_selector(soup, watcher):
-    case = soup.find('table').find_all('tr')[-1]
-    link = case.find_all('td')[2].find('a')['href']
-    case_name = case.find_all('td')[1].text
-
-    # TODO: do whatever you need to do to get "links" to be
-    # a list of all the links on the page and "case_names"
-    # to be a list of all the case names
+    cases = soup.find('table').find_all('tr')
+    links, case_names = map(lambda x: (x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].find('a')['href']), cases[1:])
     return [ (x[0], x) for x in zip(links, case_names) ]
 
 #################################################################
@@ -131,14 +126,14 @@ def new_data_ptab(page, watcher):
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
 def open_pacer((url, case_name), watcher):
-    winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
     case_nos = watcher['case_nos']
     if any(case_no in case_name for case_no in case_nos):
     #    sound_file = 'C:\\Windows\Media\%s.wav' %case_no
     #    watcher['sound'] = watcher.get('sound', sound_file)
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
-    print(str(datetime.datetime.now()), watcher['name'], watcher['url'])
+        winsound.PlaySound(sound_file, winsound.SND_FILENAME)
+    print(str(datetime.datetime.now()), case_name, url)
 
 ###############################################################################
 #  SCRAPER method to monitor the list of sites
@@ -148,10 +143,7 @@ headers = {
         }
 
 today = datetime.datetime.now()
-DD = datetime.timedelta(days=2)
-filed_from = today - DD
-filed_from = filed_from.strftime("%m/%d/%Y")
-filed_to = today.strftime("%m/%d/%Y")
+today = today.strftime("%m/%d/%Y")
 
 def loop(watcher):
     while True:
