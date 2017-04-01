@@ -44,7 +44,7 @@ def pacer_retriever(url):
     cookies = {}
     payload = {'login': 'heusenvon', 'key': 'Ca$adelt'}
     data =  {'filed_from': filed_from, 'filed_to': filed_to, 'Key1': 'de_date_filed'}
-    
+
     page = requests.post(url, data=payload, headers=headers)
     result = re.search('PacerSession=(.+?);', page.content)
     cookies['PacerSession'] = result.group(1)
@@ -68,7 +68,7 @@ def get_nypost(soup, watcher):
     if damelo in authors:
         return link, link
     else:
-        return False, False
+        return False
 
 def get_rss(soup, watcher):
     article = soup.find('item')
@@ -93,23 +93,7 @@ def pacer_selector(soup, watcher):
     # TODO: do whatever you need to do to get "links" to be
     # a list of all the links on the page and "case_names"
     # to be a list of all the case names
-
-    # handle the very first iteration of the loop
-    if len(watcher['prev']) == 0:
-        return links, False
-
-    # no update
-    if len(links) == len(watcher['prev']):
-        return False, False
-
-    # there was some update on the page
-    for i in xrange(len(links)):
-        if links[i] not in watcher['prev']:
-            watcher['name'] = case_names[i]
-            return links[i], links[i]
-
-    print("Something went wrong! Didn't find new pacer link")
-    return False, False
+    return [ (x[0], x) for x in zip(links, case_names) ]
 
 #################################################################
 # HANDLERS triggered when a change occurs
@@ -146,16 +130,16 @@ def new_data_ptab(page, watcher):
     if not opened:
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
-def open_pacer(url, watcher):
+def open_pacer((url, case_name), watcher):
     winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
     case_nos = watcher['case_nos']
-    if any(case_no in watcher['name'] for case_no in case_nos):
+    if any(case_no in case_name for case_no in case_nos):
     #    sound_file = 'C:\\Windows\Media\%s.wav' %case_no
     #    watcher['sound'] = watcher.get('sound', sound_file)
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
     print(str(datetime.datetime.now()), watcher['name'], watcher['url'])
-    
+
 ###############################################################################
 #  SCRAPER method to monitor the list of sites
 
@@ -175,23 +159,34 @@ def loop(watcher):
 
         try:
             parsed = watcher['retriever'](url)
-            prev, data = watcher['selector'](parsed, watcher)
+            selected = watcher['selector'](parsed, watcher)
             if watcher['type'] == 'json':
                 print ('scraped ptab', str(datetime.datetime.now()))
         except Exception as e:
             eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
-            prev = False
+            selected = False
 
-        if len(watcher['prev']) > 0 and prev not in watcher['prev'] and prev:
-            try:
-                #winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
-                watcher['data_handler'](data, watcher)
-            except Exception as e:
-                eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
-        if isinstance(prev, list):
-            watcher['prev'].update(prev)
-        else:
-            watcher['prev'].add(prev)
+        if isinstance(prev, list) and len(prev) == len(watcher['prev']):
+            selected = False
+
+        if isinstance(prev, tuple):
+            selected = [selected]
+
+        if selected:
+            for (prev, data) in selected:
+                if prev not in watcher['prev']:
+                    watcher['prev'].add(prev)
+
+                    # don't open anything on the first loop
+                    if not watcher['first_loop']:
+                        try:
+                            #winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+                            watcher['data_handler'](data, watcher)
+                        except Exception as e:
+                            eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
+
+
+        watcher['first_loop'] = False
         time.sleep(watcher['delay'])
 
 ##########################################################
@@ -238,7 +233,7 @@ watchmen = [
         'url': 'http://www.presciencepoint.com/research/feed',
         'sound': 'C:\\Windows\Media\prescience.wav'
     },
-    
+
     # PTAB
     #{
     #    # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
@@ -330,14 +325,15 @@ for watcher in watchmen:
     watcher['prev'] = set()
     watcher['name'] = watcher.get('name', watcher['url'])
     watcher['type'] = watcher.get('type', 'soup')
-    
+    watcher['first_loop'] = True
+
     if watcher['type'] == 'soup':
         watcher['delay'] = watcher.get('delay', 0.5)
         watcher['timestamp'] = watcher.get('timestamp', False)
         watcher['retriever'] = watcher.get('retriever', page_retriever)
         watcher['selector'] = watcher.get('selector', get_rss)
         watcher['data_handler'] = watcher.get('data_handler', open_url)
-    
+
     elif watcher['type'] == 'json':
         watcher['delay'] = watcher.get('delay', 60)
         watcher['timestamp'] = watcher.get('timestamp', True)
@@ -345,13 +341,13 @@ for watcher in watchmen:
         watcher['retriever'] = watcher.get('retriever', ptab_retriever)
         watcher['selector'] = watcher.get('selector', get_ptab_uspto)
         watcher['data_handler'] = watcher.get('data_handler', new_data_ptab)
-    
+
     elif watcher['type'] == 'pacer':
         watcher['delay'] = watcher.get('delay', 30)
         watcher['retriever'] = watcher.get('retriever', pacer_retriever)
         watcher['selector'] = watcher.get('selector', pacer_selector)
         watcher['data_handler'] = watcher.get('data_handler', open_pacer)
-    
+
     t = threading.Thread(target=loop, args=(watcher,))
     t.daemon = True
     t.start()
