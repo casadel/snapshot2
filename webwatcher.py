@@ -89,10 +89,27 @@ def pacer_selector(soup, watcher):
     case = soup.find('table').find_all('tr')[-1]
     link = case.find_all('td')[2].find('a')['href']
     case_name = case.find_all('td')[1].text
-    watcher['name'] = case_name
-    return link, link
-    #else:
-    #    return False, False
+
+    # TODO: do whatever you need to do to get "links" to be
+    # a list of all the links on the page and "case_names"
+    # to be a list of all the case names
+
+    # handle the very first iteration of the loop
+    if len(watcher['prev']) == 0:
+        return links, False
+
+    # no update
+    if len(links) == len(watcher['prev']):
+        return False, False
+
+    # there was some update on the page
+    for i in xrange(len(links)):
+        if links[i] not in watcher['prev']:
+            watcher['name'] = case_names[i]
+            return links[i], links[i]
+
+    print("Something went wrong! Didn't find new pacer link")
+    return False, False
 
 #################################################################
 # HANDLERS triggered when a change occurs
@@ -171,7 +188,10 @@ def loop(watcher):
                 watcher['data_handler'](data, watcher)
             except Exception as e:
                 eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
-        watcher['prev'].add(prev)
+        if isinstance(prev, list):
+            watcher['prev'].update(prev)
+        else:
+            watcher['prev'].add(prev)
         time.sleep(watcher['delay'])
 
 ##########################################################
