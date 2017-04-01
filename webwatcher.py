@@ -179,7 +179,6 @@ def loop(watcher):
                     # don't open anything on the first loop
                     if not watcher['first_loop']:
                         try:
-                            #winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
                             watcher['data_handler'](data, watcher)
                         except Exception as e:
                             eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
