@@ -87,7 +87,7 @@ def get_ptab_uspto(page, watcher):
 
 def pacer_selector(soup, watcher):
     cases = soup.find('table').find_all('tr')
-    links, case_names = map(lambda x: (x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].find('a')['href']), cases[1:])
+    links, case_names = zip(*((x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].text) for x in cases[1:]))
     return [(x[0], x) for x in zip(links, case_names)]
 
 #################################################################
