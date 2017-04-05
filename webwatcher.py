@@ -80,6 +80,11 @@ def get_ctfn(soup, watcher):
     last_symbol = last_pubs.find('li').find('strong').text
     return last_symbol, watcher['url']
 
+def get_itc(soup, watcher):
+    doc_id = soup.find('document').find('id').text
+    link = watcher['url']
+    return doc_id, link
+
 def get_ptab_uspto(page, watcher):
     #import random
     #return random.random(), page
@@ -315,6 +320,13 @@ watchmen = [
         'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
         'case_nos': ['2:16-cv-01118', '2:15-cv-01360', '2:13-cv-00391']
+    },
+    {
+        'name': 'ITC 337-944',
+        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
+        'sound': 'C:\\Windows\Media\Court.wav',
+        'selector': get_itc,
+        'delay': 5
     }
 ]
 
