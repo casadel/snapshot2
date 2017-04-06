@@ -226,6 +226,7 @@ watchmen = [
         'selector': get_ctfn,
         'sound': 'C:\\Windows\Media\CTFN.wav'
     },
+
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
     #    'sound': 'C:\\Windows\Media\tsla.wav'
@@ -235,10 +236,10 @@ watchmen = [
     #    'delay': 1,
     #    'sound': 'C:\\Windows\Media\spruce.wav'
     #},
-    #{
-    #    'url': 'http://www.presciencepoint.com/research/feed',
-    #    'sound': 'C:\\Windows\Media\prescience.wav'
-    #},
+    {
+        'url': 'http://www.presciencepoint.com/research/feed',
+        'sound': 'C:\\Windows\Media\prescience.wav'
+    },
 
     # PTAB
     #{
@@ -262,36 +263,6 @@ watchmen = [
     #    'name': 'IPR2017-01129',
     #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1485794/documents?availability=PUBLIC&cacheFix=',
     #    'sound': 'C:\\Windows\Media\EW.wav',
-    #    'type': 'json',
-    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    #},
-    #{
-    #    # EW - BSX, institution decision due ~ April
-    #    'name': 'IPR2017-00444',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1477074/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\EW.wav',
-    #    'type': 'json',
-    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    #},
-    #{
-    #    'name': 'IPR2017-00072',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472314/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\EW.wav',
-    #    'type': 'json',
-    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    #},
-    #{
-    #    'name': 'IPR2017-00060',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1472154/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\EW.wav',
-    #    'type': 'json',
-    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    #},
-    #{
-    #    # MYL - TEVA Copaxone, institution decision due by May
-    #    'name': 'IPR2017-00195',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1473916/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Teva.wav',
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     #},
@@ -389,5 +360,6 @@ for watcher in watchmen:
 
 while True:
     time.sleep(1)
+
 
 
