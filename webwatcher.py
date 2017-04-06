@@ -92,8 +92,12 @@ def get_ptab_uspto(page, watcher):
 
 def pacer_selector(soup, watcher):
     cases = soup.find('table').find_all('tr')
-    links, case_names = zip(*((x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].text) for x in cases[1:]))
-    return [(x[0], x) for x in zip(links, case_names)]
+    last = cases[-1].find_all('td')[-1].text
+    if last == 'Date Filed':
+        return False
+    else:
+        links, case_names = zip(*((x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].text) for x in cases[1:]))
+        return [(x[0], x) for x in zip(links, case_names)]
 
 #################################################################
 # HANDLERS triggered when a change occurs
@@ -135,13 +139,12 @@ def open_pacer((url, case_name), watcher):
     case_nos = watcher['case_nos']
     if any(case_no in case_name for case_no in case_nos):
     #    sound_file = 'C:\\Windows\Media\%s.wav' %case_no
+        sound_file = watcher['sound']
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
         winsound.PlaySound(sound_file, winsound.SND_FILENAME)
         print(str(datetime.datetime.now()), case_name, url)
     else:
-        cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %watcher['url'])
-        subprocess.Popen(cmd, shell=True)
         winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
         print(str(datetime.datetime.now()), case_name, url)
 
@@ -162,20 +165,20 @@ def loop(watcher):
         try:
             parsed = watcher['retriever'](url)
             selected = watcher['selector'](parsed, watcher)
-            #if watcher['type'] == 'json':
-            #    print ('scraped ptab', str(datetime.datetime.now()))
+            #if watcher['url'] == 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl':
+            #   print (selected, str(datetime.datetime.now()))
+            if not watcher['status']:
+                print ('All good!')
+            watcher['status'] = True
         except Exception as e:
             eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
             selected = False
-
-        # theoretically, this optimization fails if something in watcher['prev'] ends
-        # up getting *removed* from the selected list
+            watcher['status'] = False
         if isinstance(selected, list) and len(selected) == len(watcher['prev']):
             selected = False
-
         if isinstance(selected, tuple):
             selected = [selected]
-
+            
         if selected:
             for (prev, data) in selected:
                 if prev not in watcher['prev']:
@@ -232,10 +235,10 @@ watchmen = [
     #    'delay': 1,
     #    'sound': 'C:\\Windows\Media\spruce.wav'
     #},
-    {
-        'url': 'http://www.presciencepoint.com/research/feed',
-        'sound': 'C:\\Windows\Media\prescience.wav'
-    },
+    #{
+    #    'url': 'http://www.presciencepoint.com/research/feed',
+    #    'sound': 'C:\\Windows\Media\prescience.wav'
+    #},
 
     # PTAB
     #{
@@ -292,21 +295,49 @@ watchmen = [
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     #},
+    #{
+    #    # Test
+    #    'name': '',
+    #    'url': '',
+    #    'sound': 'C:\\Windows\Media\Abbv_chrs.wav',
+    #    'type': 'json',
+    #},
     # PACER
     {
         'name': 'Delaware Dist. Court',
         'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666', '	1:14-cv-00955']
+        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666', '1:14-cv-00955']
     },
     {
-        'name': 'Cali. Southern Dist. Court',
-        'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-        'sound': "C:\\Windows\Media\Court case audio\BOFI.wav",
+        'name': 'NJ Dist. Court',
+        'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['3:15-cv-02287', '3:15-cv-02353', '3:15-cv-02324', '3:15-cv-02486']
+        'case_nos': ['2:16-cv-01118', '2:13-cv-00391']
     },
+    #{
+    #    'name': 'DC Dist. Court',
+    #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': [1:16-cv-02521]
+    #},
+    #{
+    #    'name': 'Cali. Northern Dist. Court',
+    #    'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': "C:\\Windows\Media\Court.wav",
+    #    'type': 'pacer',
+    #    'case_nos': ['5:17-cv-00220']
+    #},
+    #{
+    #    'name': 'Cali. Southern Dist. Court',
+    #    'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': "C:\\Windows\Media\Court.wav",
+    #    'type': 'pacer',
+    #    'case_nos': ['3:15-cv-02287', '3:15-cv-02353', '3:15-cv-02324', '3:15-cv-02486', '3:17-cv-00108']
+    #},
     #{
     #    'name': 'Illinois Northern Dist. Court',
     #    'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
@@ -315,18 +346,11 @@ watchmen = [
     #    'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
     #},
     {
-        'name': 'NJ Dist. Court',
-        'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-        'sound': 'C:\\Windows\Media\Court.wav',
-        'type': 'pacer',
-        'case_nos': ['2:16-cv-01118', '2:15-cv-01360', '2:13-cv-00391']
-    },
-    {
         'name': 'ITC 337-944',
         'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
         'sound': 'C:\\Windows\Media\Court.wav',
         'selector': get_itc,
-        'delay': 5
+        'delay': 10
     }
 ]
 
@@ -336,6 +360,7 @@ for watcher in watchmen:
     watcher['name'] = watcher.get('name', watcher['url'])
     watcher['type'] = watcher.get('type', 'soup')
     watcher['first_loop'] = True
+    watcher['status'] = True
 
     if watcher['type'] == 'soup':
         watcher['delay'] = watcher.get('delay', 0.5)
@@ -353,7 +378,7 @@ for watcher in watchmen:
         watcher['data_handler'] = watcher.get('data_handler', new_data_ptab)
 
     elif watcher['type'] == 'pacer':
-        watcher['delay'] = watcher.get('delay', 30)
+        watcher['delay'] = watcher.get('delay', 45)
         watcher['retriever'] = watcher.get('retriever', pacer_retriever)
         watcher['selector'] = watcher.get('selector', pacer_selector)
         watcher['data_handler'] = watcher.get('data_handler', open_pacer)
