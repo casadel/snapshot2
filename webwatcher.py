@@ -138,8 +138,9 @@ def new_data_ptab(page, watcher):
 def open_pacer((url, case_name), watcher):
     case_nos = watcher['case_nos']
     if any(case_no in case_name for case_no in case_nos):
-    #    sound_file = 'C:\\Windows\Media\%s.wav' %case_no
-        sound_file = watcher['sound']
+        case_no = case_no.split(':')
+        case_no = case_no[0] + case_no[1]
+        sound_file = 'C:\\Windows\Media\Court case audio\%s.wav' %case_no
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
         winsound.PlaySound(sound_file, winsound.SND_FILENAME)
@@ -231,11 +232,11 @@ watchmen = [
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
     #    'sound': 'C:\\Windows\Media\tsla.wav'
     #},
-    #{
-    #    'url': 'http://www.sprucepointcap.com/research/feed',
-    #    'delay': 1,
-    #    'sound': 'C:\\Windows\Media\spruce.wav'
-    #},
+    {
+        'url': 'http://www.sprucepointcap.com/research/feed',
+        'delay': 1,
+        'sound': 'C:\\Windows\Media\spruce.wav'
+    },
     {
         'url': 'http://www.presciencepoint.com/research/feed',
         'sound': 'C:\\Windows\Media\prescience.wav'
@@ -319,9 +320,9 @@ watchmen = [
     {
         'name': 'ITC 337-944',
         'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
-        'sound': 'C:\\Windows\Media\Court.wav',
+        'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
         'selector': get_itc,
-        'delay': 10
+        'delay': 30
     }
 ]
 
@@ -349,7 +350,7 @@ for watcher in watchmen:
         watcher['data_handler'] = watcher.get('data_handler', new_data_ptab)
 
     elif watcher['type'] == 'pacer':
-        watcher['delay'] = watcher.get('delay', 45)
+        watcher['delay'] = watcher.get('delay', 60)
         watcher['retriever'] = watcher.get('retriever', pacer_retriever)
         watcher['selector'] = watcher.get('selector', pacer_selector)
         watcher['data_handler'] = watcher.get('data_handler', open_pacer)
