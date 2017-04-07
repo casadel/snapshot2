@@ -280,14 +280,14 @@ watchmen = [
         'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666', '1:14-cv-00955']
+        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666']
     },
     {
         'name': 'NJ Dist. Court',
         'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['2:16-cv-01118', '2:13-cv-00391']
+        'case_nos': ['2:13-cv-00391', '2:15-cv-01360']
     },
     #{
     #    'name': 'DC Dist. Court',
