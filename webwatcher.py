@@ -18,13 +18,14 @@ import codecs
 import re
 
 if os.name == 'nt':
-    from winsound import PlaySound, Beep, SND_FILENAME
+    from winsound import PlaySound, Beep, SND_FILENAME, SND_ASYNC
 else:
     def PlaySound(foo, bar):
         pass
     def Beep(foo, bar):
         pass
     SND_FILENAME = 'foo'
+    SND_FILENAME = 'bar'
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
@@ -124,14 +125,15 @@ def pacer_selector(soup, watcher):
 def open_url(url, watcher):
     cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
-    PlaySound(watcher['sound'], SND_FILENAME)
+    PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
     print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
 
 def new_data_ptab(page, watcher):
     def make_url(doc, url):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
-    PlaySound(watcher['sound'], SND_FILENAME)
+    PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
+
     page = json.loads(page)
     opened = False
     for i in xrange(len(page) - 1, -1, -1):
@@ -143,7 +145,6 @@ def new_data_ptab(page, watcher):
             url = make_url(doc, watcher['url'])
             cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
             subprocess.Popen(cmd, shell=True)
-            PlaySound(watcher['sound'], SND_FILENAME)
 
             #get/parse/return order
             filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
@@ -151,8 +152,8 @@ def new_data_ptab(page, watcher):
             with open(filename, 'wb') as file:
                 file.write(pdf.content)
             order = conclusion.find_order(filename)
-            Beep(440, 500)
             print("\n\n" + watcher['name'] + "\n" + order + "\n")
+            Beep(440, 500)
             opened = True
             break
     if not opened:
@@ -168,7 +169,8 @@ def open_pacer((url, case_name), watcher):
         sound_file = 'C:\\Windows\Media\Court case audio\%s.wav' %case_no
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
-        PlaySound(sound_file, SND_FILENAME)
+        PlaySound(sound_file, SND_FILENAME | SND_ASYNC)
+        print(str(datetime.datetime.now()), case_name, url)
 
         # download View Document page
         page = requests.get(url, cookies=watcher['cookies'], headers=headers)
@@ -184,10 +186,9 @@ def open_pacer((url, case_name), watcher):
             file.write(pdf.content)
         conc = conclusion.find_conclusion(filename)
         print(conc)
-
-        print(str(datetime.datetime.now()), case_name, url)
+        Beep(440, 500)
     else:
-        PlaySound(watcher['sound'], SND_FILENAME)
+        PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
         print(str(datetime.datetime.now()), case_name, url)
 
 ###############################################################################
