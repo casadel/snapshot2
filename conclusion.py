@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import math
 import sys
 import re
@@ -148,8 +150,11 @@ def convert_to_rows(characters):
 
     return rows
 
+def parse_page(current_page, args):
 
-def parse_page(current_page, pages):
+    if 'pages' not in args:
+        args['pages'] = []
+
     texts = []
 
     # seperate text and rectangle elements
@@ -160,27 +165,41 @@ def parse_page(current_page, pages):
     characters = extract_characters(texts)
     page = convert_to_rows(characters)
 
-    pages.append(page)
-    pgno = len(pages) - 1
+    args['pages'].append(page)
+    pgno = len(args['pages']) - 1
 
     for i in range(len(page)):
-        line = page[i][0]
-        if re.search('\.\s*CONCLUSION', line) is not None:
+        line = ''.join(page[i])
+        if re.search(args['start'], line) is not None:
             s = ""
             while True:
-                line = page[i][0]
-                if re.search('\.\s*ORDER', line) is not None:
+                line = ''.join(page[i])
+                search = re.search(args['end'], line)
+                if search is not None:
+                    s += search.group(1)
                     break
                 s += line
                 i += 1
                 if i == len(page) - 1:
                     if pgno == 0:
-                        raise Exception("Couldn't find end of conclusion")
+                        #raise Exception("Couldn't find end of conclusion")
+                        break
                     i = 0
                     pgno -= 1
-                    page = pages[pgno]
+                    page = args['pages'][pgno]
             return s
     return False
 
 def find_conclusion(path):
-    return extract_layout_by_page(path, parse_page, [])
+    args = {
+        'start': 'CONCLUSION\s*$',
+        'end': '()ORDER\s*$'
+    }
+    return extract_layout_by_page(path, parse_page, args)
+
+def find_order(path):
+    args = {
+        'start': 'ORDER\s*$',
+        'end': '(.*?37 C.F.R.)'
+    }
+    return extract_layout_by_page(path, parse_page, args)

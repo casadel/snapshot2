@@ -16,7 +16,15 @@ import conclusion
 import uuid
 import codecs
 import re
-import winsound
+
+if os.name == 'nt':
+    from winsound import PlaySound, Beep, SND_FILENAME
+else:
+    def PlaySound(foo, bar):
+        pass
+    def Beep(foo, bar):
+        pass
+    SND_FILENAME = 'foo'
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
@@ -29,18 +37,18 @@ def eprint(*args, **kwargs):
 ###############################################################
 # RETRIEVERS retrieve the relevant page and return the soup to be parsed
 
-def page_retriever(url):
+def page_retriever(url, watcher):
     page = requests.get(url, headers=headers)
     parsed = BeautifulSoup(page.text, 'html.parser')
     return parsed
 
-def ptab_retriever(url):
+def ptab_retriever(url, watcher):
     url = append_timestamp(url)
     page = requests.get(url, headers=headers)
     parsed = page.content
     return parsed
 
-def pacer_retriever(url):
+def pacer_retriever(url, watcher):
     cookies = {}
     payload = {'login': 'heusenvon', 'key': 'Ca$adelt'}
     data =  {'filed_from': today, 'filed_to': today, 'Key1': 'de_date_filed'}
@@ -55,6 +63,9 @@ def pacer_retriever(url):
     # perform the search and retrieve the page
     page2 = requests.post(url + suffix, data=data, cookies=cookies, headers=headers)
     parsed = BeautifulSoup(page2.text, 'html.parser')
+
+    watcher['cookies'] = cookies
+
     return parsed
 
 ###############################################################
@@ -97,7 +108,15 @@ def pacer_selector(soup, watcher):
         return False
     else:
         links, case_names = zip(*((x.find_all('td')[2].find('a')['href'], x.find_all('td')[1].text) for x in cases[1:]))
-        return [(x[0], x) for x in zip(links, case_names)]
+
+        tmp = [(x[0], x) for x in zip(links, case_names)]
+        # for testing
+        #import random
+        #for i in range(len(tmp)):
+        #    if 'Acorda' in tmp[i][1][1]:
+        #        tmp[i] = (tmp[i][0] + '?' + str(random.random()), tmp[i][1])
+        #        break
+        return tmp
 
 #################################################################
 # HANDLERS triggered when a change occurs
@@ -105,48 +124,70 @@ def pacer_selector(soup, watcher):
 def open_url(url, watcher):
     cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
-    winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+    PlaySound(watcher['sound'], SND_FILENAME)
     print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
 
 def new_data_ptab(page, watcher):
     def make_url(doc, url):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
-    winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+    PlaySound(watcher['sound'], SND_FILENAME)
     page = json.loads(page)
     opened = False
-    for doc in page:
+    for i in xrange(len(page) - 1, -1, -1):
+        doc = page[i]
+        if 'paperTypeName' not in doc:
+            continue
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
             #open decision in browser
             url = make_url(doc, watcher['url'])
             cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
             subprocess.Popen(cmd, shell=True)
-            winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
-            #get/parse/return conclusion
+            PlaySound(watcher['sound'], SND_FILENAME)
+
+            #get/parse/return order
             filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
             pdf = requests.get(url, headers=headers)
             with open(filename, 'wb') as file:
                 file.write(pdf.content)
-            conc = conclusion.find_conclusion(filename)
-            winsound.Beep(440, 500)
-            print("\n\n" + watcher['name'] + "\n" + conc + "\n")
+            order = conclusion.find_order(filename)
+            Beep(440, 500)
+            print("\n\n" + watcher['name'] + "\n" + order + "\n")
             opened = True
             break
     if not opened:
         open_url('https://ptab.uspto.gov/#/login', watcher)
 
 def open_pacer((url, case_name), watcher):
-    case_nos = watcher['case_nos']
-    if any(case_no in case_name for case_no in case_nos):
-        case_no = case_no.split(':')
+
+    case_nos = [case_no for case_no in watcher['case_nos'] if case_no in case_name]
+    if len(case_nos):
+        # open View Document page in Chrome
+        case_no = case_nos[0].split(':')
         case_no = case_no[0] + case_no[1]
         sound_file = 'C:\\Windows\Media\Court case audio\%s.wav' %case_no
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
-        winsound.PlaySound(sound_file, winsound.SND_FILENAME)
+        PlaySound(sound_file, SND_FILENAME)
+
+        # download View Document page
+        page = requests.get(url, cookies=watcher['cookies'], headers=headers)
+        data = {'pdf_toggle_possible': 1, 'got_receipt': 1}
+        result = re.search('onSubmit="goDLS\(\'.*?\',\'(.*?)\',\'(.*?)\'', page.content)
+        data['caseid'] = result.group(1)
+        data['de_seq_num'] = result.group(1)
+
+        # downloads PDF
+        pdf = requests.post(url, data=data, cookies=watcher['cookies'], headers=headers)
+        filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
+        with open(filename, 'wb') as file:
+            file.write(pdf.content)
+        conc = conclusion.find_conclusion(filename)
+        print(conc)
+
         print(str(datetime.datetime.now()), case_name, url)
     else:
-        winsound.PlaySound(watcher['sound'], winsound.SND_FILENAME)
+        PlaySound(watcher['sound'], SND_FILENAME)
         print(str(datetime.datetime.now()), case_name, url)
 
 ###############################################################################
@@ -164,7 +205,7 @@ def loop(watcher):
         url = watcher['url']
 
         try:
-            parsed = watcher['retriever'](url)
+            parsed = watcher['retriever'](url, watcher)
             selected = watcher['selector'](parsed, watcher)
             #if watcher['url'] == 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl':
             #   print (selected, str(datetime.datetime.now()))
@@ -179,7 +220,7 @@ def loop(watcher):
             selected = False
         if isinstance(selected, tuple):
             selected = [selected]
-            
+
         if selected:
             for (prev, data) in selected:
                 if prev not in watcher['prev']:
@@ -269,8 +310,8 @@ watchmen = [
     #},
     #{
     #    # Test
-    #    'name': '',
-    #    'url': '',
+    #    'name': 'IPR2015-01993',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=',
     #    'sound': 'C:\\Windows\Media\Abbv_chrs.wav',
     #    'type': 'json',
     #},
