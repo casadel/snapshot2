@@ -16,16 +16,8 @@ import conclusion
 import uuid
 import codecs
 import re
+from winsound import PlaySound, Beep, SND_FILENAME, SND_ASYNC
 
-if os.name == 'nt':
-    from winsound import PlaySound, Beep, SND_FILENAME, SND_ASYNC
-else:
-    def PlaySound(foo, bar):
-        pass
-    def Beep(foo, bar):
-        pass
-    SND_FILENAME = 'foo'
-    SND_FILENAME = 'bar'
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
@@ -52,7 +44,7 @@ def ptab_retriever(url, watcher):
 def pacer_retriever(url, watcher):
     cookies = {}
     payload = {'login': 'heusenvon', 'key': 'Ca$adelt'}
-    data =  {'filed_from': today, 'filed_to': today, 'Key1': 'de_date_filed'}
+    data =  {'filed_from': today_str, 'filed_to': today_str, 'Key1': 'de_date_filed'}
 
     page = requests.post(url, data=payload, headers=headers)
     result = re.search('PacerSession=(.+?);', page.content)
@@ -66,7 +58,13 @@ def pacer_retriever(url, watcher):
     parsed = BeautifulSoup(page2.text, 'html.parser')
 
     watcher['cookies'] = cookies
+    return parsed
 
+def itc_retriever(url, watcher):
+    url_end = 'month%5D={}&field_release_date_value_1%5Bvalue%5D%5Byear%5D={}'.format(today.month, today.year)
+    url = url+url_end
+    page = requests.get(url, headers=headers)
+    parsed = BeautifulSoup(page.text, 'html.parser')
     return parsed
 
 ###############################################################
@@ -97,6 +95,25 @@ def get_itc(soup, watcher):
     link = watcher['url']
     return doc_id, link
 
+def get_nflx(soup, watcher):
+    q_html = soup.find('ul', {'class': 'textUL'})
+    if q_html != None:
+        doc_links = q_html.find_all('a')
+        tmp = [(doc, doc) for doc in doc_links]
+        #import random
+        #tmp[0] = (random.random(), tmp[0][1])
+        return tmp
+    else:
+        return False
+
+def get_itc_pr(soup, watcher):
+    prs = soup.find_all('div', attrs={'class': 'views-field views-field-title'})
+    if prs != []:
+        links = [('https://www.usitc.gov' + pr.find('a')['href']) for pr in prs]
+        return [(link, link) for link in links]
+    else:
+        return False
+    
 def get_ptab_uspto(page, watcher):
     #import random
     #return random.random(), page
@@ -122,6 +139,13 @@ def pacer_selector(soup, watcher):
 #################################################################
 # HANDLERS triggered when a change occurs
 
+def open_nflx(doc, watcher):
+    found = False
+    if 'Letter' in doc.text:
+        link = doc['href']
+        link = 'https://ir.netflix.com/' + link
+        open_url(link, watcher)
+    
 def open_url(url, watcher):
     cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
@@ -145,7 +169,7 @@ def new_data_ptab(page, watcher):
             url = make_url(doc, watcher['url'])
             cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
             subprocess.Popen(cmd, shell=True)
-
+            print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
             #get/parse/return order
             filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
             pdf = requests.get(url, headers=headers)
@@ -199,7 +223,7 @@ headers = {
         }
 
 today = datetime.datetime.now()
-today = today.strftime("%m/%d/%Y")
+today_str = today.strftime("%m/%d/%Y")
 
 def loop(watcher):
     while True:
@@ -208,15 +232,16 @@ def loop(watcher):
         try:
             parsed = watcher['retriever'](url, watcher)
             selected = watcher['selector'](parsed, watcher)
-            #if watcher['url'] == 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl':
-            #   print (selected, str(datetime.datetime.now()))
+            #if watcher['type'] == 'json':
+            #   print ('ptab', str(datetime.datetime.now()))
             if not watcher['status']:
                 print ('All good!')
             watcher['status'] = True
         except Exception as e:
-            eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
-            selected = False
-            watcher['status'] = False
+            if watcher['url'] != 'http://www.sprucepointcap.com/research/feed':
+                eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
+                selected = False
+                watcher['status'] = False
         if isinstance(selected, list) and len(selected) == len(watcher['prev']):
             selected = False
         if isinstance(selected, tuple):
@@ -226,7 +251,7 @@ def loop(watcher):
             for (prev, data) in selected:
                 if prev not in watcher['prev']:
                     watcher['prev'].add(prev)
-
+                    
                     # don't open anything on the first loop
                     if not watcher['first_loop']:
                         try:
@@ -274,6 +299,13 @@ watchmen = [
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
     #    'sound': 'C:\\Windows\Media\tsla.wav'
     #},
+    #{
+    #    'url': 'https://ir.netflix.com/results.cfm?Quarter=&Year=2017',
+    #    'selector': get_nflx,
+    #    'sound': 'C:\\Windows\Media\NFLX.wav',
+    #    'data_handler': open_nflx,
+    #    'delay': .25
+    #},
     {
         'url': 'http://www.sprucepointcap.com/research/feed',
         'delay': 1,
@@ -283,15 +315,21 @@ watchmen = [
         'url': 'http://www.presciencepoint.com/research/feed',
         'sound': 'C:\\Windows\Media\prescience.wav'
     },
-
+    {
+        'url': 'https://www.usitc.gov/press_room/news_release/news_release_index.htm?field_release_date_value%5Bvalue%5D%5B',
+        'sound': 'C:\\Windows\Media\ITC.wav',
+        'retriever' : itc_retriever,
+        'selector': get_itc_pr,
+        'delay': 5
+    },
     # PTAB
     #{
-    #    # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
+        # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
     #    'name': 'IPR2015-01340',
     #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
     #    'sound': 'C:\\Windows\Media\Azn_myl.wav',
     #    'type': 'json',
-    #    'delay': 30
+    #    'delay': 3
     #},
     #{
     #    # ABBV CHRS Humira, due 5/17
@@ -311,10 +349,11 @@ watchmen = [
     #},
     #{
     #    # Test
-    #    'name': 'IPR2015-01993',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464139/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Abbv_chrs.wav',
+    #    'name': 'IPR2015-01956',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1461720/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\Biib_bass.wav',
     #    'type': 'json',
+    #    'delay': 12
     #},
     # PACER
     {
@@ -329,7 +368,7 @@ watchmen = [
         'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
         'sound': 'C:\\Windows\Media\Court.wav',
         'type': 'pacer',
-        'case_nos': ['2:13-cv-00391', '2:15-cv-01360']
+        'case_nos': ['2:13-cv-00391', '2:15-cv-01360', '2:16-cv-04544']
     },
     #{
     #    'name': 'DC Dist. Court',
@@ -343,7 +382,7 @@ watchmen = [
     #    'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
     #    'sound': "C:\\Windows\Media\Court.wav",
     #    'type': 'pacer',
-    #    'case_nos': ['5:17-cv-00220']
+    #    'case_nos': ['5:17-cv-00220', '5:16-cv-00923']
     #},
     #{
     #    'name': 'Cali. Southern Dist. Court',
@@ -360,11 +399,25 @@ watchmen = [
     #    'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
     #},
     {
+        'name': 'ITC 337-1010',
+        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-1010',
+        'sound': 'C:\\Windows\Media\Court case audio\XPER.wav',
+        'selector': get_itc,
+        'delay': 60
+    },
+    {
         'name': 'ITC 337-944',
         'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
         'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
         'selector': get_itc,
-        'delay': 30
+        'delay': 60
+    },
+    {
+        'name': 'ITC 337-945',
+        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-945',
+        'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
+        'selector': get_itc,
+        'delay': 60
     }
 ]
 
@@ -403,6 +456,7 @@ for watcher in watchmen:
 
 while True:
     time.sleep(1)
+
 
 
 
