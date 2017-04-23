@@ -157,7 +157,7 @@ def new_data_ptab(page, watcher):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
     PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
-
+    print('Change detected %s at %s' %(watcher['name'], (str(datetime.datetime.now()))))
     page = json.loads(page)
     opened = False
     for i in xrange(len(page) - 1, -1, -1):
@@ -165,19 +165,21 @@ def new_data_ptab(page, watcher):
         if 'paperTypeName' not in doc:
             continue
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
-            #open decision in browser
             url = make_url(doc, watcher['url'])
-            cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
-            subprocess.Popen(cmd, shell=True)
-            print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
             #get/parse/return order
             filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
             pdf = requests.get(url, headers=headers)
             with open(filename, 'wb') as file:
                 file.write(pdf.content)
-            order = conclusion.find_order(filename)
-            print("\n\n" + watcher['name'] + "\n" + order + "\n")
-            Beep(440, 500)
+            try:
+                order = conclusion.find_order(filename)
+                print("\n\n" + watcher['name'] + "\n" + order + "\n")
+                Beep(440, 500)
+            except:
+                #open decision in browser if order not found
+                cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
+                subprocess.Popen(cmd, shell=True)
+                print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
             opened = True
             break
     if not opened:
