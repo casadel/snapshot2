@@ -372,13 +372,13 @@ watchmen = [
         'type': 'pacer',
         'case_nos': ['2:13-cv-00391', '2:15-cv-01360', '2:16-cv-04544']
     },
-    #{
-    #    'name': 'NY Southern Dist. Court',
-    #    'url': 'https://ecf.nysd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-    #    'sound': 'C:\\Windows\Media\Court.wav',
-    #    'type': 'pacer',
-    #    'case_nos': [1:16-cv-08164]
-    #},
+    {
+        'name': 'NY Southern Dist. Court',
+        'url': 'https://ecf.nysd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
+        'type': 'pacer',
+        'case_nos': ['1:16-cv-08164']
+    },
     #{
     #    'name': 'DC Dist. Court',
     #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
