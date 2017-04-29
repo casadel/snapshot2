@@ -67,7 +67,7 @@ def itc_retriever(url, watcher):
     parsed = BeautifulSoup(page.text, 'html.parser')
     return parsed
 
-def drug_retriever(url, watcher)
+def drug_retriever(url, watcher):
     data = {'reportSelectMonth': today.month, 'reportSelectYear': today.year}
     page = requests.post(url, data=data, headers=headers)
     soup = BeautifulSoup(page.text, 'html.parser')
@@ -354,9 +354,8 @@ watchmen = [
         'url': 'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=reportsSearch.process',
         'sound': 'C:\\Windows\Media\FDA.wav'
         'retriever': drug_retriever,
-        'selector': get_drugs,
-        
-    }
+        'selector': get_drugs,  
+    },
     # PTAB
     #{
         # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
