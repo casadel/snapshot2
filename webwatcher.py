@@ -274,15 +274,13 @@ def loop(watcher):
         if selected:
             for (prev, data) in selected:
                 if prev not in watcher['prev']:
-                    watcher['prev'].add(prev)
-                    
+                    watcher['prev'].add(prev)   
                     # don't open anything on the first loop
                     if not watcher['first_loop']:
                         try:
                             watcher['data_handler'](data, watcher)
                         except Exception as e:
                             eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
-
 
         watcher['first_loop'] = False
         time.sleep(watcher['delay'])
@@ -309,11 +307,6 @@ watchmen = [
         'sound': 'C:\\Windows\Media\MW.wav'
     },
     {
-        'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
-        'delay': 2,
-        'sound': 'C:\\Windows\Media\FDA.wav'
-    },
-    {
         'url': 'http://ctfn.news/',
         'selector': get_ctfn,
         'sound': 'C:\\Windows\Media\CTFN.wav'
@@ -323,6 +316,16 @@ watchmen = [
         'selector': get_street,
         'sound': 'C:\\Windows\Media\Feuerstein.wav'
     },
+    {
+        'url': 'http://www.sprucepointcap.com/research/feed',
+        'delay': 1,
+        'sound': 'C:\\Windows\Media\spruce.wav'
+    },
+    {
+        'url': 'http://www.presciencepoint.com/research/feed',
+        'sound': 'C:\\Windows\Media\prescience.wav'
+    },
+    # IRs
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
     #    'sound': 'C:\\Windows\Media\tsla.wav'
@@ -335,13 +338,9 @@ watchmen = [
     #    'delay': .25
     #},
     {
-        'url': 'http://www.sprucepointcap.com/research/feed',
-        'delay': 1,
-        'sound': 'C:\\Windows\Media\spruce.wav'
-    },
-    {
-        'url': 'http://www.presciencepoint.com/research/feed',
-        'sound': 'C:\\Windows\Media\prescience.wav'
+        'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
+        'delay': 2,
+        'sound': 'C:\\Windows\Media\FDA.wav'
     },
     {
         'url': 'https://www.usitc.gov/press_room/news_release/news_release_index.htm?field_release_date_value%5Bvalue%5D%5B',
