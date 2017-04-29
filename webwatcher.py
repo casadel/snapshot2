@@ -105,6 +105,11 @@ def get_nflx(soup, watcher):
         return tmp
     else:
         return False
+    
+def get_street(soup, watcher):
+    story_lst = soup.find_all('div', attrs={'class': 'news-list__item'})
+    links, authors = zip(*((watcher['url'] + x.find('a')['href'], x.find('div', attrs={'class': 'news-list__author-name'}).text) for x in story_lst))
+    return [(x[0], x) for x in zip(links, authors)]
 
 def get_itc_pr(soup, watcher):
     prs = soup.find_all('div', attrs={'class': 'views-field views-field-title'})
@@ -144,6 +149,10 @@ def open_nflx(doc, watcher):
     if 'Letter' in doc.text:
         link = doc['href']
         link = 'https://ir.netflix.com/' + link
+        open_url(link, watcher)
+        
+def open_street((link, author), watcher):
+    if author == 'Adam Feuerstein':
         open_url(link, watcher)
     
 def open_url(url, watcher):
@@ -296,7 +305,11 @@ watchmen = [
         'selector': get_ctfn,
         'sound': 'C:\\Windows\Media\CTFN.wav'
     },
-
+    {
+        'url': 'https://www.thestreet.com',
+        'selector': get_street,
+        'sound': 'C:\\Windows\Media\Feuerstein.wav'
+    },
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
     #    'sound': 'C:\\Windows\Media\tsla.wav'
