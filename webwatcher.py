@@ -67,6 +67,11 @@ def itc_retriever(url, watcher):
     parsed = BeautifulSoup(page.text, 'html.parser')
     return parsed
 
+def drug_retriever(url, watcher)
+    data = {'reportSelectMonth': today.month, 'reportSelectYear': today.year}
+    page = requests.post(url, data=data, headers=headers)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    return soup
 ###############################################################
 # SELECTORS find the info within the soup to be monitored
 
@@ -116,6 +121,14 @@ def get_itc_pr(soup, watcher):
     if prs != []:
         links = [('https://www.usitc.gov' + pr.find('a')['href']) for pr in prs]
         return [(link, link) for link in links]
+    else:
+        return False
+    
+def get_drugs(soup, watcher):
+    table = soup.find('table').find('tbody').find_all('tr')
+    if 'Your selected month and year did not return any results.' not in table[0].text:
+        link = 'https://www.accessdata.fda.gov' + table[-1].find('a')['href']
+        return link, link
     else:
         return False
     
@@ -337,6 +350,13 @@ watchmen = [
         'selector': get_itc_pr,
         'delay': 5
     },
+    {
+        'url': 'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=reportsSearch.process',
+        'sound': 'C:\\Windows\Media\FDA.wav'
+        'retriever': drug_retriever,
+        'selector': get_drugs,
+        
+    }
     # PTAB
     #{
         # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
