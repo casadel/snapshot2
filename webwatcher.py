@@ -352,14 +352,14 @@ watchmen = [
         'selector': get_drugs,  
     },
     # PTAB
-    #{
+    {
         # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
-    #    'name': 'IPR2015-01340',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Azn_myl.wav',
-    #    'type': 'json',
-    #    'delay': 3
-    #},
+        'name': 'IPR2015-01340',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Azn_myl.wav',
+        'type': 'json',
+        'delay': 5
+    },
     #{
     #    # ABBV CHRS Humira, due 5/17
     #    'name': 'IPR2016-00172',
@@ -376,14 +376,14 @@ watchmen = [
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     #},
-    #{
-    #    # Test
-    #    'name': 'IPR2015-01956',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1461720/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Biib_bass.wav',
-    #    'type': 'json',
-    #    'delay': 12
-    #},
+    {
+        # NVS
+        'name': 'IPR2016-00084',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462562/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Nvs.wav',
+        'type': 'json',
+        'delay': 5
+    },
     # PACER
     {
         'name': 'Delaware Dist. Court',
