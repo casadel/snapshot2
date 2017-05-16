@@ -192,9 +192,9 @@ def new_data_ptab(page, watcher):
             try:
                 order = conclusion.find_order(filename)
                 if ' not ' in order:
-                    PlaySound('C:\\Windows\Media\Abbv.wav', SND_FILENAME | SND_ASYNC)
+                    PlaySound('C:\Users\Rob\Music\Abbv.wav', SND_FILENAME | SND_ASYNC)
                 else:
-                    PlaySound('C:\\Windows\Media\Chrs.wav', SND_FILENAME | SND_ASYNC)
+                    PlaySound('C:\Users\Rob\Music\Chrs.wav', SND_FILENAME | SND_ASYNC)
                 print("\n\n" + watcher['name'] + "\n" + order + "\n")
                 
             except:
@@ -289,42 +289,42 @@ def loop(watcher):
 #PAGES
 
 watchmen = [
-    {
-        'url': 'http://nypost.com/feed/',
-        'selector': get_nypost,
-        'sound': 'C:\\Windows\Media\kosman.wav'
-    },
-    {
-        'url': 'http://www.citronresearch.com/feed',
-        'sound': 'C:\\Windows\Media\Citron.wav'
-    },
-    {
-        'url': 'http://sirf-online.org/feed/',
-        'sound': 'C:\\Windows\Media\sirf.wav'
-    },
-    {
-        'url': 'http://www.muddywatersresearch.com/feed/?post_type=reports',
-        'sound': 'C:\\Windows\Media\MW.wav'
-    },
-    {
-        'url': 'http://ctfn.news/',
-        'selector': get_ctfn,
-        'sound': 'C:\\Windows\Media\CTFN.wav'
-    },
-    {
-        'url': 'https://www.thestreet.com/find/results?q=feuerstein',
-        'selector': get_street,
-        'sound': 'C:\\Windows\Media\Feuerstein.wav'
-    },
-    {
-        'url': 'http://www.sprucepointcap.com/research/feed',
-        'delay': 1,
-        'sound': 'C:\\Windows\Media\spruce.wav'
-    },
-    {
-        'url': 'http://www.presciencepoint.com/research/feed',
-        'sound': 'C:\\Windows\Media\prescience.wav'
-    },
+    #{
+    #    'url': 'http://nypost.com/feed/',
+    #    'selector': get_nypost,
+    #    'sound': 'C:\\Windows\Media\kosman.wav'
+    #},
+    #{
+    #    'url': 'http://www.citronresearch.com/feed',
+    #    'sound': 'C:\\Windows\Media\Citron.wav'
+    #},
+    #{
+    #    'url': 'http://sirf-online.org/feed/',
+    #    'sound': 'C:\\Windows\Media\sirf.wav'
+    #},
+    #{
+    #    'url': 'http://www.muddywatersresearch.com/feed/?post_type=reports',
+    #    'sound': 'C:\\Windows\Media\MW.wav'
+    #},
+    #{
+    #    'url': 'http://ctfn.news/',
+    #    'selector': get_ctfn,
+    #    'sound': 'C:\\Windows\Media\CTFN.wav'
+    #},
+    #{
+    #    'url': 'https://www.thestreet.com/find/results?q=feuerstein',
+    #    'selector': get_street,
+    #    'sound': 'C:\\Windows\Media\Feuerstein.wav'
+    #},
+    #{
+    #    'url': 'http://www.sprucepointcap.com/research/feed',
+    #    'delay': 1,
+    #    'sound': 'C:\\Windows\Media\spruce.wav'
+    #},
+    #{
+    #    'url': 'http://www.presciencepoint.com/research/feed',
+    #    'sound': 'C:\\Windows\Media\prescience.wav'
+    #},
     # IRs
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
@@ -337,41 +337,41 @@ watchmen = [
     #    'data_handler': open_nflx,
     #    'delay': .25
     #},
-    {
-        'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
-        'delay': 2,
-        'sound': 'C:\\Windows\Media\FDA.wav'
-    },
-    {
-        'url': 'https://www.usitc.gov/press_room/news_release/news_release_index.htm?field_release_date_value%5Bvalue%5D%5B',
-        'sound': 'C:\\Windows\Media\ITC.wav',
-        'retriever' : itc_retriever,
-        'selector': get_itc_pr,
-        'delay': 5
-    },
-    {
-        'url': 'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=reportsSearch.process',
-        'sound': 'C:\\Windows\Media\FDA.wav'
-        'retriever': drug_retriever,
-        'selector': get_drugs,  
-    },
+    #{
+    #    'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
+    #    'delay': 2,
+    #    'sound': 'C:\\Windows\Media\FDA.wav'
+    #},
+    #{
+    #    'url': 'https://www.usitc.gov/press_room/news_release/news_release_index.htm?field_release_date_value%5Bvalue%5D%5B',
+    #    'sound': 'C:\\Windows\Media\ITC.wav',
+    #    'retriever' : itc_retriever,
+    #    'selector': get_itc_pr,
+    #    'delay': 5
+    #},
+    #{
+    #    'url': 'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=reportsSearch.process',
+    #    'sound': 'C:\\Windows\Media\FDA.wav'
+    #    'retriever': drug_retriever,
+    #    'selector': get_drugs,  
+    #},
     # PTAB
     {
         # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
         'name': 'IPR2015-01340',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Azn_myl.wav',
+        'sound': 'C:\Users\Rob\Music\Azn_myl.wav',
         'type': 'json',
         'delay': 5
     },
-    #{
-    #    # ABBV CHRS Humira, due 5/17
-    #    'name': 'IPR2016-00172',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Abbv_chrs.wav',
-    #    'type': 'json'
-    #    #'delay': 30
-    #},
+    {
+        # ABBV CHRS Humira, due 5/17
+        'name': 'IPR2016-00172',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\Users\Rob\Music\Abbv_chrs.wav',
+        'type': 'json'
+        'delay': 4
+    },
     #{
          # REGN AMGN dupixent preliminary
     #    'name': 'IPR2017-01129',
@@ -389,27 +389,27 @@ watchmen = [
         'delay': 5
     },
     # PACER
-    {
-        'name': 'Delaware Dist. Court',
-        'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-        'sound': 'C:\\Windows\Media\Court.wav',
-        'type': 'pacer',
-        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666']
-    },
-    {
-        'name': 'NJ Dist. Court',
-        'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-        'sound': 'C:\\Windows\Media\Court.wav',
-        'type': 'pacer',
-        'case_nos': ['2:13-cv-00391', '2:15-cv-01360', '2:16-cv-04544']
-    },
-    {
-        'name': 'NY Southern Dist. Court',
-        'url': 'https://ecf.nysd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-        'sound': 'C:\\Windows\Media\Court.wav',
-        'type': 'pacer',
-        'case_nos': ['1:16-cv-08164']
-    },
+    #{
+    #    'name': 'Delaware Dist. Court',
+    #    'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666']
+    #},
+    #{
+    #    'name': 'NJ Dist. Court',
+    #    'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['2:13-cv-00391', '2:15-cv-01360', '2:16-cv-04544']
+    #},
+    #{
+    #    'name': 'NY Southern Dist. Court',
+    #    'url': 'https://ecf.nysd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['1:16-cv-08164']
+    #},
     #{
     #    'name': 'DC Dist. Court',
     #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
@@ -438,27 +438,27 @@ watchmen = [
     #    'type': 'pacer',
     #    'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
     #},
-    {
-        'name': 'ITC 337-1010',
-        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-1010',
-        'sound': 'C:\\Windows\Media\Court case audio\XPER.wav',
-        'selector': get_itc,
-        'delay': 60
-    },
-    {
-        'name': 'ITC 337-944',
-        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
-        'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
-        'selector': get_itc,
-        'delay': 60
-    },
-    {
-        'name': 'ITC 337-945',
-        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-945',
-        'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
-        'selector': get_itc,
-        'delay': 60
-    }
+    #{
+    #    'name': 'ITC 337-1010',
+    #    'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-1010',
+    #    'sound': 'C:\\Windows\Media\Court case audio\XPER.wav',
+    #    'selector': get_itc,
+    #    'delay': 60
+    #},
+    #{
+    #    'name': 'ITC 337-944',
+    #    'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
+    #    'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
+    #    'selector': get_itc,
+    #    'delay': 60
+    #},
+    #{
+    #    'name': 'ITC 337-945',
+    #    'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-945',
+    #    'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
+    #    'selector': get_itc,
+    #    'delay': 60
+    #}
 ]
 
 for watcher in watchmen:
