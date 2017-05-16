@@ -191,8 +191,12 @@ def new_data_ptab(page, watcher):
                 file.write(pdf.content)
             try:
                 order = conclusion.find_order(filename)
+                if ' not ' in order:
+                    PlaySound('C:\\Windows\Media\Abbv.wav', SND_FILENAME | SND_ASYNC)
+                else:
+                    PlaySound('C:\\Windows\Media\Chrs.wav', SND_FILENAME | SND_ASYNC)
                 print("\n\n" + watcher['name'] + "\n" + order + "\n")
-                Beep(440, 500)
+                
             except:
                 #open decision in browser if order not found
                 cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
