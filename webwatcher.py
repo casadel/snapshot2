@@ -369,7 +369,7 @@ watchmen = [
         'name': 'IPR2016-00172',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
         'sound': 'C:\Users\Rob\Music\Abbv_chrs.wav',
-        'type': 'json'
+        'type': 'json',
         'delay': 4
     },
     #{
