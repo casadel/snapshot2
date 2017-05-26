@@ -365,12 +365,60 @@ watchmen = [
         'delay': 5
     },
     {
-        # ABBV CHRS Humira, due 5/17
-        'name': 'IPR2016-00172',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463015/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\Users\Rob\Music\Abbv_chrs.wav',
+        # NVS
+        'name': 'IPR2016-00084',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462562/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Nvs.wav',
         'type': 'json',
-        'delay': 4
+        'delay': 5
+    },
+    {
+        # JNJ due 5/31
+        'name': 'IPR2016-00286',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462535/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Jnj.wav',
+        'type': 'json',
+        'delay': 15
+    },
+    {
+        # LLY due 6/3
+        'name': 'IPR2016-00237',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1461718/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Lly.wav',
+        'type': 'json',
+        'delay': 15
+    },
+    {
+        # LLY due 6/3
+        'name': 'IPR2016-00240',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463994/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Lly.wav',
+        'type': 'json',
+        'delay': 15
+    },
+    {
+        # ANET due 6/6
+        'name': 'IPR2016-00306',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464176/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Anet.wav',
+        'type': 'json',
+        'delay': 15
+    },
+    {
+        # ANET due 6/6
+        'name': 'IPR2016-00309',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462570/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Anet.wav',
+        'type': 'json',
+        'delay': 15
+    },
+    {
+        # FMS due 6/8
+        'name': 'IPR2016-00254',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459784/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Fms.wav',
+        'type': 'json',
+        'delay': 15
     },
     #{
          # REGN AMGN dupixent preliminary
@@ -380,14 +428,7 @@ watchmen = [
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     #},
-    {
-        # NVS
-        'name': 'IPR2016-00084',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462562/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Nvs.wav',
-        'type': 'json',
-        'delay': 5
-    },
+    
     # PACER
     #{
     #    'name': 'Delaware Dist. Court',
