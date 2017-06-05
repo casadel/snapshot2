@@ -397,22 +397,6 @@ watchmen = [
         'delay': 15
     },
     {
-        # ANET due 6/6
-        'name': 'IPR2016-00306',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464176/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Anet.wav',
-        'type': 'json',
-        'delay': 15
-    },
-    {
-        # ANET due 6/6
-        'name': 'IPR2016-00309',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462570/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Anet.wav',
-        'type': 'json',
-        'delay': 15
-    },
-    {
         # FMS due 6/8
         'name': 'IPR2016-00254',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459784/documents?availability=PUBLIC&cacheFix=',
@@ -421,6 +405,15 @@ watchmen = [
         'delay': 15
     },
     #{
+         # INSY GWPH institution dec. due by 7/11
+    #    'name': 'IPR2017-00503',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1477817/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\GWPH.wav',
+    #    'type': 'json',
+    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution'],
+    #    'delay' : 20
+    #},
+    #{
          # REGN AMGN dupixent preliminary
     #    'name': 'IPR2017-01129',
     #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1485794/documents?availability=PUBLIC&cacheFix=',
@@ -428,7 +421,6 @@ watchmen = [
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     #},
-    
     # PACER
     #{
     #    'name': 'Delaware Dist. Court',
