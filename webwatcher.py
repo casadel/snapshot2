@@ -191,12 +191,12 @@ def new_data_ptab(page, watcher):
                 file.write(pdf.content)
             try:
                 order = conclusion.find_order(filename)
-                if ' not ' in order:
-                    PlaySound('C:\Users\Rob\Music\Abbv.wav', SND_FILENAME | SND_ASYNC)
+                neg_words = [' not ', ' fail']
+                if any(word in order for word in neg_words):
+                    PlaySound(watcher['POlose_sound'], SND_FILENAME | SND_ASYNC)
                 else:
-                    PlaySound('C:\Users\Rob\Music\Chrs.wav', SND_FILENAME | SND_ASYNC)
-                print("\n\n" + watcher['name'] + "\n" + order + "\n")
-                
+                    PlaySound(watcher['POwin_sound'], SND_FILENAME | SND_ASYNC)
+                print("\n\n" + watcher['name'] + " " + str(datetime.datetime.now())  + "\n" + order + "\n")
             except:
                 #open decision in browser if order not found
                 cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
@@ -381,29 +381,65 @@ watchmen = [
         'delay': 15
     },
     {
-        # LLY due 6/3
-        'name': 'IPR2016-00237',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1461718/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Lly.wav',
-        'type': 'json',
-        'delay': 15
-    },
-    {
-        # LLY due 6/3
-        'name': 'IPR2016-00240',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463994/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Lly.wav',
-        'type': 'json',
-        'delay': 15
-    },
-    {
         # FMS due 6/8
         'name': 'IPR2016-00254',
         'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459784/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Fms.wav',
+        'sound': 'C:/Users/abent/Music/Fms.wav',
+        'POwin_sound' : 'C:/Users/abent/Music/Fms.wav',
+        'POlose_sound' : 'C:/Users/abent/Music/Bass.wav',
         'type': 'json',
-        'delay': 15
+        'delay': 12
     },
+    {
+        # ABBV-CHRS 6/13
+        'name': 'IPR2016-00188',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462514/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:/Users/abent/Music/Abbv_chrs.wav',
+        'POwin_sound' : 'C:/Users/abent/Music/Abbv.wav',
+        'POlose_sound' : 'C:/Users/abent/Music/Chrs.wav',
+        'type': 'json',
+        'delay': 20
+    },
+    {
+        # ABBV-CHRS 6/13
+        'name': 'IPR2016-00189',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462530/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:/Users/abent/Music/Abbv_chrs.wav',
+        'POwin_sound' : 'C:/Users/abent/Music/Abbv.wav',
+        'POlose_sound' : 'C:/Users/abent/Music/Chrs.wav',
+        'type': 'json',
+        'delay': 20
+    },
+    #{
+    #    # LLY due 6/16
+    #    'name': 'IPR2016-00237',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1461718/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:/Users/abent/Music/Lly.wav',
+    #    'POwin_sound' : 'C:/Users/abent/Music/Lly.wav',
+    #    'POlose_sound' : 'C:/Users/abent/Music/Neptune.wav',
+    #    'type': 'json',
+    #    'delay': 30
+    #},
+    #{
+    #    # LLY due 6/16
+    #    'name': 'IPR2016-00240',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463994/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:/Users/abent/Music/Lly.wav',
+    #    'POwin_sound' : 'C:/Users/abent/Music/Lly.wav',
+    #    'POlose_sound' : 'C:/Users/abent/Music/Neptune.wav',
+    #    'type': 'json',
+    #    'delay': 30
+    #},
+    #{
+    #    # LLY due 6/16
+    #    'name': 'IPR2016-00138',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464009/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:/Users/abent/Music/Lly.wav',
+    #    'POwin_sound' : 'C:/Users/abent/Music/Lly.wav',
+    #    'POlose_sound' : 'C:/Users/abent/Music/Neptune.wav',
+    #    'type': 'json',
+    #    'delay': 30
+    #},
     #{
          # INSY GWPH institution dec. due by 7/11
     #    'name': 'IPR2017-00503',
