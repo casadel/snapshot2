@@ -72,33 +72,96 @@ def drug_retriever(url, watcher):
     page = requests.post(url, data=data, headers=headers)
     soup = BeautifulSoup(page.text, 'html.parser')
     return soup
+
 ###############################################################
 # SELECTORS find the info within the soup to be monitored
-
 def get_nypost(soup, watcher):
     article = soup.find('item')
     link = article.find('link').text
     authors = article.find('dc:creator').text.split(', ')
-    damelo = 'Josh Kosman'
-    if damelo in authors:
-        return link, link
+    damelos = ['Kosman', 'Atkinson', 'Dugan']
+    for author in authors:
+        for damelo in damelos:
+            if damelo in author:
+                watcher['sound'] = 'C:\\Windows\Media\%s.wav' %damelo
+                return link, link
     else:
         return False
 
-def get_rss(soup, watcher):
-    article = soup.find('item')
-    link = article.find('link').text
-    return link, link
-
+def get_axios(soup, watcher):
+    article = soup.find('article')
+    link = article['data-url']
+    author_list = article.find_all('li', attrs={'class': 'author-avatar__item'})
+    found = False
+    for author in author_list:
+        if 'Jonathan Swan' in author.text:
+            found = True
+            return link, link
+            break
+    if found == False:
+        return False
+    
 def get_ctfn(soup, watcher):
     last_pubs = soup.find_all('ul', {'class': 'last-published-contents'})[0]
     last_symbol = last_pubs.find('li').find('strong').text
     return last_symbol, watcher['url']
 
-def get_itc(soup, watcher):
-    doc_id = soup.find('document').find('id').text
+def get_muddy(soup, watcher):
+    link = soup.find('table', attrs={'id': 'research-table'}).find('a')['href']
+    return link, link
+    
+def get_rss(soup, watcher):
+    article = soup.find('item')
+    link = article.find('link').text
+    return link, link
+
+def get_spruce(soup, watcher):
+    link = soup.find('h2', attrs={'class': 'entry-title'}).find('a')['href']
+    return link, link
+
+def get_prescience(soup, watcher):
+    link = soup.find('h6', attrs={'class': 'entry-title'}).find('a')['href']
+    return link, link
+
+def get_citron(soup, watcher):
+    link = soup.find('h2', attrs={'class': 'post-title entry-title'}).find('a')['href']
+    link = watcher['url'] + link
+    return link, link
+
+def get_mox(soup, watcher):
+    link = soup.find('h1', attrs={'class': 'entry-title'}).find('a')['href']
+    return link, link
+
+def get_glaucus(soup, watcher):
+    link = soup.find_all('p')[2].find('a')['href']
+    return link, link
+
+def get_skytides(soup, watcher):
+    link = 'http://www.skytides.com/' + soup.find('td', attrs={'class': 'views-field views-field-title views-align-left'}).find('a')['href']
+    return link, link
+
+def get_gotham(soup, watcher):
+    link = soup.find('h2', attrs={'class': 'entry-title'}).find('a')['href']
+    return link, link
+
+def get_bronte(soup, watcher):
+    link = soup.find('h3', attrs={'class': 'post-title entry-title'}).find('a')['href']
+    return link, link
+
+def get_swept(soup, watcher):
+    title = soup.find('h1').text
     link = watcher['url']
-    return doc_id, link
+    return title, link
+
+def get_beta(soup, watcher):
+    title = soup.find('article').text
+    link = watcher['url']
+    return title, link
+
+def get_kerrisdale(soup, watcher):
+    title = soup.find('h2', attrs={'class': 'post-heading'}).text
+    link = watcher['url']
+    return title, link
 
 def get_nflx(soup, watcher):
     q_html = soup.find('ul', {'class': 'textUL'})
@@ -110,11 +173,23 @@ def get_nflx(soup, watcher):
         return tmp
     else:
         return False
-    
-def get_street(soup, watcher):
-    article = soup.find('div', attrs={'class': 'news-list-compact__block'})
-    link = 'https://www.thestreet.com' + article.find('a')['href']
+
+def get_sq(soup, watcher):
+    link = soup.find('a', {'class': 'arrow'})['href']
     return link, link
+
+def get_drugs(soup, watcher):
+    table = soup.find('table').find('tbody').find_all('tr')
+    if 'Your selected month and year did not return any results.' not in table[0].text:
+        link = 'https://www.accessdata.fda.gov' + table[-1].find('a')['href']
+        return link, link
+    else:
+        return False
+
+def get_itc(soup, watcher):
+    doc_id = soup.find('document').find('id').text
+    link = watcher['url']
+    return doc_id, link
 
 def get_itc_pr(soup, watcher):
     prs = soup.find_all('div', attrs={'class': 'views-field views-field-title'})
@@ -123,15 +198,11 @@ def get_itc_pr(soup, watcher):
         return [(link, link) for link in links]
     else:
         return False
-    
-def get_drugs(soup, watcher):
-    table = soup.find('table').find('tbody').find_all('tr')
-    if 'Your selected month and year did not return any results.' not in table[0].text:
-        link = 'https://www.accessdata.fda.gov' + table[-1].find('a')['href']
-        return link, link
-    else:
-        return False
-    
+
+def get_de(soup, watcher):
+    name = soup.find('table').find('td').text
+    return name, name
+
 def get_ptab_uspto(page, watcher):
     #import random
     #return random.random(), page
@@ -154,6 +225,19 @@ def pacer_selector(soup, watcher):
         #        break
         return tmp
 
+def get_stat(soup, watcher):
+    article = soup.find('div', attrs={'class': 'card-grid-item'})
+    link = article.find('a')['href']
+    author = article.find('p', attrs={'class': 'author'}).text
+    if 'Adam Feuerstein' in author:
+        return link, link
+    else:
+        return False
+                         
+def get_calisuper(page, watcher):
+    #import random
+    #return random.random(), page
+    return len(page), watcher['url']
 #################################################################
 # HANDLERS triggered when a change occurs
 
@@ -175,7 +259,7 @@ def new_data_ptab(page, watcher):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
     PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
-    print('Change detected %s at %s' %(watcher['name'], (str(datetime.datetime.now()))))
+
     page = json.loads(page)
     opened = False
     for i in xrange(len(page) - 1, -1, -1):
@@ -183,6 +267,7 @@ def new_data_ptab(page, watcher):
         if 'paperTypeName' not in doc:
             continue
         if any(doc['paperTypeName'] == dec_type for dec_type in watcher['dec_types']):
+            #open decision in browser
             url = make_url(doc, watcher['url'])
             #get/parse/return order
             filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
@@ -191,14 +276,9 @@ def new_data_ptab(page, watcher):
                 file.write(pdf.content)
             try:
                 order = conclusion.find_order(filename)
-                neg_words = [' not ', ' fail']
-                if any(word in order for word in neg_words):
-                    PlaySound(watcher['POlose_sound'], SND_FILENAME | SND_ASYNC)
-                else:
-                    PlaySound(watcher['POwin_sound'], SND_FILENAME | SND_ASYNC)
-                print("\n\n" + watcher['name'] + " " + str(datetime.datetime.now())  + "\n" + order + "\n")
+                print("\n\n" + watcher['name'] + "\n" + order + "\n")
+                Beep(440, 500)
             except:
-                #open decision in browser if order not found
                 cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
                 subprocess.Popen(cmd, shell=True)
                 print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
@@ -219,26 +299,14 @@ def open_pacer((url, case_name), watcher):
         subprocess.Popen(cmd, shell=True)
         PlaySound(sound_file, SND_FILENAME | SND_ASYNC)
         print(str(datetime.datetime.now()), case_name, url)
-
-        # download View Document page
-        page = requests.get(url, cookies=watcher['cookies'], headers=headers)
-        data = {'pdf_toggle_possible': 1, 'got_receipt': 1}
-        result = re.search('onSubmit="goDLS\(\'.*?\',\'(.*?)\',\'(.*?)\'', page.content)
-        data['caseid'] = result.group(1)
-        data['de_seq_num'] = result.group(1)
-
-        # downloads PDF
-        pdf = requests.post(url, data=data, cookies=watcher['cookies'], headers=headers)
-        filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
-        with open(filename, 'wb') as file:
-            file.write(pdf.content)
-        conc = conclusion.find_conclusion(filename)
-        print(conc)
-        Beep(440, 500)
     else:
         PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
-        print(str(datetime.datetime.now()), case_name, url)
+        print(case_name, watcher['name'], str(datetime.datetime.now()))
 
+
+def open_de(case_name, watcher):
+    PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
+    print(case_name, watcher['url'], str(datetime.datetime.now()))
 ###############################################################################
 #  SCRAPER method to monitor the list of sites
 
@@ -248,21 +316,21 @@ headers = {
 
 today = datetime.datetime.now()
 today_str = today.strftime("%m/%d/%Y")
-
+bugs = ['http://www.sprucepointcap.com/research/feed', 'http://moxreports.com/', 'https://glaucusresearch.com/', 'http://www.aureliusvalue.com/feed/']
 def loop(watcher):
     while True:
         url = watcher['url']
-
+        selected = None
         try:
             parsed = watcher['retriever'](url, watcher)
             selected = watcher['selector'](parsed, watcher)
             #if watcher['type'] == 'json':
-            #   print ('ptab', str(datetime.datetime.now()))
+                #print (watcher['name'], str(datetime.datetime.now()))
             if not watcher['status']:
-                print ('All good!')
+                print ('All good!', str(datetime.datetime.now()))
             watcher['status'] = True
         except Exception as e:
-            if watcher['url'] != 'http://www.sprucepointcap.com/research/feed':
+            if watcher['url'] not in bugs :
                 eprint('%s: Scraping %s failed for some reason (%s)' %(str(datetime.datetime.now()), watcher['name'], str(e)))
                 selected = False
                 watcher['status'] = False
@@ -274,7 +342,8 @@ def loop(watcher):
         if selected:
             for (prev, data) in selected:
                 if prev not in watcher['prev']:
-                    watcher['prev'].add(prev)   
+                    watcher['prev'].add(prev)
+                    
                     # don't open anything on the first loop
                     if not watcher['first_loop']:
                         try:
@@ -282,53 +351,113 @@ def loop(watcher):
                         except Exception as e:
                             eprint('%s: Handling %s failed for some reason (%s)' %(str(datetime.datetime.now()), url, str(e)))
 
-        watcher['first_loop'] = False
+
+        if watcher['first_loop']:
+            print ('%s initialized %s' %(watcher['name'],str(datetime.datetime.now())))
+            watcher['first_loop'] = False
         time.sleep(watcher['delay'])
 
 ##########################################################
 #PAGES
 
 watchmen = [
+    {
+        'url': 'http://nypost.com/feed/',
+        'selector': get_nypost,
+        'sound': 'C:\\Windows\Media\kosman.wav'
+    },
     #{
-    #    'url': 'http://nypost.com/feed/',
-    #    'selector': get_nypost,
-    #    'sound': 'C:\\Windows\Media\kosman.wav'
-    #},
-    #{
-    #    'url': 'http://www.citronresearch.com/feed',
-    #    'sound': 'C:\\Windows\Media\Citron.wav'
-    #},
-    #{
-    #    'url': 'http://sirf-online.org/feed/',
-    #    'sound': 'C:\\Windows\Media\sirf.wav'
-    #},
-    #{
-    #    'url': 'http://www.muddywatersresearch.com/feed/?post_type=reports',
-    #    'sound': 'C:\\Windows\Media\MW.wav'
+    #    'url': 'http://www.axios.com',
+    #    'selector': get_axios,
+    #    'sound': 'C:\\Windows\Media\axios.wav'
     #},
     #{
     #    'url': 'http://ctfn.news/',
     #    'selector': get_ctfn,
     #    'sound': 'C:\\Windows\Media\CTFN.wav'
     #},
+    {
+        'url': 'https://www.statnews.com/category/biotech/',
+        'selector': get_stat,
+        'sound': 'C:\\Windows\Media\Feuerstein_stat.wav'
+    },
+    {
+        'url': 'http://www.citronresearch.com',
+        'selector': get_citron,
+        'sound': 'C:\\Windows\Media\Citron.wav'
+    },
+    {
+        'url': 'http://sirf-online.org/',
+        'selector': get_spruce,
+        'sound': 'C:\\Windows\Media\SIRF.wav'
+    },
+    {
+        'url': 'http://www.muddywatersresearch.com/research/',
+        'sound': 'C:\\Windows\Media\MW.wav',
+        'selector': get_muddy
+    },
+    {
+        'url': 'http://www.sprucepointcap.com/research/',
+        'delay': 1,
+        'selector': get_spruce,
+        'sound': 'C:\\Windows\Media\Spruce.wav'
+    },
+    {
+        'url': 'http://www.presciencepoint.com/research/',
+        'selector': get_prescience,
+        'sound': 'C:\\Windows\Media\Prescience2.wav'
+    },
+    {
+        'url': 'http://www.aureliusvalue.com/feed/',
+        'sound': 'C:\\Windows\Media\Aurelius_web.wav'
+    },
+    {
+        'url': 'https://krebsonsecurity.com/feed/',
+        'sound': 'C:\\Windows\Media\Krebs.wav'
+    },
+    {
+        'url': 'http://moxreports.com/',
+        'selector': get_mox,
+        'sound': 'C:\\Windows\Media\Mox.wav'
+    },
+    {
+        'url': 'https://glaucusresearch.com/',
+        'selector': get_glaucus,
+        'sound': 'C:\\Windows\Media\Glaucus.wav'
+    },
     #{
-    #    'url': 'https://www.thestreet.com/find/results?q=feuerstein',
-    #    'selector': get_street,
-    #    'sound': 'C:\\Windows\Media\Feuerstein.wav'
+    #    'url': 'http://www.skytides.com/research',
+    #    'selector': get_skytides,
+    #    'sound': 'C:\\Windows\Media\Skytides.wav'
+    #},
+    {
+        'url': 'https://gothamcityresearch.com/research/',
+        'selector': get_gotham,
+        'sound': 'C:\\Windows\Media\Gotham.wav'
+    },
+    {
+        'url': 'http://brontecapital.blogspot.com/2017/',
+        'selector': get_bronte,
+        'sound': 'C:\\Windows\Media\Bronte.wav'
+    },
+    {
+        'url': 'https://www.betaville.co.uk/',
+        'selector': get_beta,
+        'sound': 'C:\\Windows\Media\Betaville.wav'
+    },
+    #{
+    #    'url': 'https://thestreetsweeper.org/',
+    #    'selector': get_swept,
+    #    'sound': 'C:\\Windows\Media\StreetSweeper.wav'
     #},
     #{
-    #    'url': 'http://www.sprucepointcap.com/research/feed',
-    #    'delay': 1,
-    #    'sound': 'C:\\Windows\Media\spruce.wav'
+    #    'url': 'https://www.kerrisdalecap.com/blog/',
+    #    'selector': get_kerrisdale,
+    #    'sound': 'C:\\Windows\Media\Kcap.wav'
     #},
-    #{
-    #    'url': 'http://www.presciencepoint.com/research/feed',
-    #    'sound': 'C:\\Windows\Media\prescience.wav'
-    #},
-    # IRs
     #{
     #    'url': 'http://apps.shareholder.com/rss/rss.aspx?channels=7196&companyid=ABEA-4CW8X0&sh_auth=3100301180%2E0%2E0%2E42761%2Eb96f9d5de05fc54b98109cd0d905924d',
-    #    'sound': 'C:\\Windows\Media\tsla.wav'
+    #    'sound': 'C:\\Windows\Media\Tsla.wav'
     #},
     #{
     #    'url': 'https://ir.netflix.com/results.cfm?Quarter=&Year=2017',
@@ -338,116 +467,51 @@ watchmen = [
     #    'delay': .25
     #},
     #{
-    #    'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
-    #    'delay': 2,
-    #    'sound': 'C:\\Windows\Media\FDA.wav'
+    #    'url': 'https://squareup.com/about/investors',
+    #    'selector': get_sq,
+    #    'sound': 'C:\\Windows\Media\SQ.wav',
+    #    'delay': .25
     #},
-    #{
-    #    'url': 'https://www.usitc.gov/press_room/news_release/news_release_index.htm?field_release_date_value%5Bvalue%5D%5B',
-    #    'sound': 'C:\\Windows\Media\ITC.wav',
-    #    'retriever' : itc_retriever,
-    #    'selector': get_itc_pr,
-    #    'delay': 5
-    #},
-    #{
-    #    'url': 'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=reportsSearch.process',
-    #    'sound': 'C:\\Windows\Media\FDA.wav'
-    #    'retriever': drug_retriever,
-    #    'selector': get_drugs,  
-    #},
+    {
+        'url': 'http://www.fda.gov/AboutFDA/ContactFDA/StayInformed/RSSFeeds/PressReleases/rss.xml',
+        'delay': 2,
+        'sound': 'C:\\Windows\Media\FDA.wav'
+    },
+    {
+        'url': 'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=reportsSearch.process',
+        'sound': 'C:\\Windows\Media\Drugs.wav',
+        'retriever': drug_retriever,
+        'selector': get_drugs,  
+    },
+    {
+        'url': 'https://www.usitc.gov/press_room/news_release/news_release_index.htm?field_release_date_value%5Bvalue%5D%5B',
+        'sound': 'C:\\Windows\Media\ITC.wav',
+        'retriever' : itc_retriever,
+        'selector': get_itc_pr,
+        'delay': 5
+    },
+    {
+        'url': 'http://courts.delaware.gov/opinions/index.aspx?ag=supreme+court',
+        'sound': 'C:\\Windows\Media\De.wav',
+        'selector': get_de,
+        'data_handler': open_de,
+        'delay': 30
+    },
+    {
+        'url': 'http://courts.delaware.gov/opinions/index.aspx?ag=court+of+chancery',
+        'sound': 'C:\\Windows\Media\De.wav',
+        'selector': get_de,
+        'data_handler': open_de,
+        'delay': 30
+    },
     # PTAB
-    {
-        # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
-        'name': 'IPR2015-01340',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\Users\Rob\Music\Azn_myl.wav',
-        'type': 'json',
-        'delay': 5
-    },
-    {
-        # NVS
-        'name': 'IPR2016-00084',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462562/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Nvs.wav',
-        'type': 'json',
-        'delay': 5
-    },
-    {
-        # JNJ due 5/31
-        'name': 'IPR2016-00286',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462535/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Jnj.wav',
-        'type': 'json',
-        'delay': 15
-    },
-    {
-        # FMS due 6/8
-        'name': 'IPR2016-00254',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1459784/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:/Users/abent/Music/Fms.wav',
-        'POwin_sound' : 'C:/Users/abent/Music/Fms.wav',
-        'POlose_sound' : 'C:/Users/abent/Music/Bass.wav',
-        'type': 'json',
-        'delay': 12
-    },
-    {
-        # ABBV-CHRS 6/13
-        'name': 'IPR2016-00188',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462514/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:/Users/abent/Music/Abbv_chrs.wav',
-        'POwin_sound' : 'C:/Users/abent/Music/Abbv.wav',
-        'POlose_sound' : 'C:/Users/abent/Music/Chrs.wav',
-        'type': 'json',
-        'delay': 20
-    },
-    {
-        # ABBV-CHRS 6/13
-        'name': 'IPR2016-00189',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462530/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:/Users/abent/Music/Abbv_chrs.wav',
-        'POwin_sound' : 'C:/Users/abent/Music/Abbv.wav',
-        'POlose_sound' : 'C:/Users/abent/Music/Chrs.wav',
-        'type': 'json',
-        'delay': 20
-    },
     #{
-    #    # LLY due 6/16
-    #    'name': 'IPR2016-00237',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1461718/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:/Users/abent/Music/Lly.wav',
-    #    'POwin_sound' : 'C:/Users/abent/Music/Lly.wav',
-    #    'POlose_sound' : 'C:/Users/abent/Music/Neptune.wav',
+    #   # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
+    #    'name': 'IPR2015-01340',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\Azn_myl.wav',
     #    'type': 'json',
-    #    'delay': 30
-    #},
-    #{
-    #    # LLY due 6/16
-    #    'name': 'IPR2016-00240',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1463994/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:/Users/abent/Music/Lly.wav',
-    #    'POwin_sound' : 'C:/Users/abent/Music/Lly.wav',
-    #    'POlose_sound' : 'C:/Users/abent/Music/Neptune.wav',
-    #    'type': 'json',
-    #    'delay': 30
-    #},
-    #{
-    #    # LLY due 6/16
-    #    'name': 'IPR2016-00138',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464009/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:/Users/abent/Music/Lly.wav',
-    #    'POwin_sound' : 'C:/Users/abent/Music/Lly.wav',
-    #    'POlose_sound' : 'C:/Users/abent/Music/Neptune.wav',
-    #    'type': 'json',
-    #    'delay': 30
-    #},
-    #{
-         # INSY GWPH institution dec. due by 7/11
-    #    'name': 'IPR2017-00503',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1477817/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\GWPH.wav',
-    #    'type': 'json',
-    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution'],
-    #    'delay' : 20
+    #    'delay': 10
     #},
     #{
          # REGN AMGN dupixent preliminary
@@ -457,34 +521,21 @@ watchmen = [
     #    'type': 'json',
     #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
     #},
+    #{
+    #    # NVS
+    #    'name': 'IPR2016-00084',
+    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462562/documents?availability=PUBLIC&cacheFix=',
+    #    'sound': 'C:\\Windows\Media\Nvs.wav',
+    #    'type': 'json',
+    #    'delay': 10
+    #},
     # PACER
     #{
-    #    'name': 'Delaware Dist. Court',
-    #    'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'name': 'Cali. Central Dist. Court',
+    #    'url': 'https://ecf.cacd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': "C:\\Windows\Media\Court.wav",
     #    'type': 'pacer',
-    #    'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00592', '1:16-cv-00666']
-    #},
-    #{
-    #    'name': 'NJ Dist. Court',
-    #    'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-    #    'sound': 'C:\\Windows\Media\Court.wav',
-    #    'type': 'pacer',
-    #    'case_nos': ['2:13-cv-00391', '2:15-cv-01360', '2:16-cv-04544']
-    #},
-    #{
-    #    'name': 'NY Southern Dist. Court',
-    #    'url': 'https://ecf.nysd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-    #    'sound': 'C:\\Windows\Media\Court.wav',
-    #    'type': 'pacer',
-    #    'case_nos': ['1:16-cv-08164']
-    #},
-    #{
-    #    'name': 'DC Dist. Court',
-    #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
-    #    'sound': 'C:\\Windows\Media\Court.wav',
-    #    'type': 'pacer',
-    #    'case_nos': [1:16-cv-02521]
+    #    'case_nos': ['2:09-cv-05013', '2:16-cv-08697', '2:17-cv-02613', '8:14-cv-02004']
     #},
     #{
     #    'name': 'Cali. Northern Dist. Court',
@@ -493,41 +544,113 @@ watchmen = [
     #    'type': 'pacer',
     #    'case_nos': ['5:17-cv-00220', '5:16-cv-00923']
     #},
+    {
+        'name': 'Cali. Southern Dist. Court',
+        'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': "C:\\Windows\Media\Court.wav",
+        'type': 'pacer',
+        'case_nos': ['3:15-cv-02287', '3:15-cv-02353', '3:15-cv-02324', '3:15-cv-02486', '3:17-cv-00108', '3:17-cv-01010']
+    },
     #{
-    #    'name': 'Cali. Southern Dist. Court',
-    #    'url': 'https://ecf.casd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'name': 'Connecticut Dist. Court',
+    #    'url': 'https://ecf.ctd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
     #    'sound': "C:\\Windows\Media\Court.wav",
     #    'type': 'pacer',
-    #    'case_nos': ['3:15-cv-02287', '3:15-cv-02353', '3:15-cv-02324', '3:15-cv-02486', '3:17-cv-00108']
+    #    'case_nos': ['3:16-cv-02056']
     #},
     #{
-    #    'name': 'Illinois Northern Dist. Court',
-    #    'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'name': 'DC Dist. Court',
+    #    'url': 'https://ecf.dcd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
     #    'sound': 'C:\\Windows\Media\Court.wav',
     #    'type': 'pacer',
-    #    'case_nos': ['1:16-cv-08637', '1:16-cv-07145']
+    #    'case_nos': ['1:17-cv-01006']
     #},
+    {
+        'name': 'Delaware Dist. Court',
+        'url': 'https://ecf.ded.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
+        'type': 'pacer',
+        'case_nos': ['1:16-cv-01243', '1:16-cv-01267', '1:16-cv-00944', '1:15-cv-00170', '1:16-cv-00666', '1:15-cv-00760', '1:17-cv-00711', '1:17-cv-00698', '1:15-cv-00839']
+    },
+    #{
+    #    'name': 'Illinois Central Dist. Court',
+    #    'url': 'https://ecf.ilcd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': []
+    #},
+    {
+        'name': 'Illinois Northern Dist. Court',
+        'url': 'https://ecf.ilnd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
+        'type': 'pacer',
+        'case_nos': ['1:16-cv-08637', '1:16-cv-07145', '1:17-cv-01164']
+    },
+    #{
+    #    'name': 'Louisiana Eastern Dist. Court',
+    #    'url': 'https://ecf.laed.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['2:14-cv-02720', '2:14-md-02592']
+    #},
+    {
+        'name': 'NJ Dist. Court',
+        'url': 'https://ecf.njd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
+        'type': 'pacer',
+        'case_nos': ['2:13-cv-00391', '2:16-cv-04544', '2:16-cv-07704', '3:15-cv-05723', '3:16-cv-03642', '3:16-cv-01816', '2:15-cv-00697']
+    },
+    {
+        'name': 'NY Southern Dist. Court',
+        'url': 'https://ecf.nysd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+        'sound': 'C:\\Windows\Media\Court.wav',
+        'type': 'pacer',
+        'case_nos': ['1:16-cv-08164']
+    },
+    #{
+    #    'name': 'Pennsylvania Middle Dist. Court',
+    #    'url': 'https://ecf.pamd.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['3:17-cv-00101']
+    #},
+    #{
+    #    'name': 'Texas Eastern Dist. Court',
+    #    'url': 'https://ecf.txed.uscourts.gov/cgi-bin/WrtOpRpt.pl',
+    #    'sound': 'C:\\Windows\Media\Court.wav',
+    #    'type': 'pacer',
+    #    'case_nos': ['2:15-cv-01455']
+    #},
+    #ITC
     #{
     #    'name': 'ITC 337-1010',
     #    'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-1010',
     #    'sound': 'C:\\Windows\Media\Court case audio\XPER.wav',
     #    'selector': get_itc,
-    #    'delay': 60
+    #    'delay': 30
     #},
     #{
     #    'name': 'ITC 337-944',
     #    'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-944',
     #    'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
     #    'selector': get_itc,
-    #    'delay': 60
+    #    'delay': 20
     #},
+    {
+        'name': 'ITC 337-945',
+        'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-945',
+        'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
+        'selector': get_itc,
+        'delay': 30
+    },
     #{
-    #    'name': 'ITC 337-945',
-    #    'url': 'https://edis.usitc.gov/data/document?investigationNumber=337-945',
-    #    'sound': 'C:\\Windows\Media\Court case audio\ANET.wav',
-    #    'selector': get_itc,
-    #    'delay': 60
-    #}
+    #    'name': 'CGC-17-559555',
+    #    'url': 'https://webapps.sftc.org/ci/CaseInfo.dll/datasnap/rest/TServerMethods1/GetROA/CGC17559555/06E8740C77B3BEF11189EA5B1292E4A7C9C731FB',
+    #    'sound': 'C:\\Windows\Media\Court case audio\Wdc.wav',
+    #    'retriever': calisuper_retriever
+    #    'selector': get_calisuper,
+    #    'delay': 30
+    #},
 ]
 
 for watcher in watchmen:
@@ -565,7 +688,7 @@ for watcher in watchmen:
 
 while True:
     time.sleep(1)
-
+    
 
 
 
