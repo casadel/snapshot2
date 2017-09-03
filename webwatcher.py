@@ -78,13 +78,14 @@ def drug_retriever(url, watcher):
 def get_nypost(soup, watcher):
     article = soup.find('item')
     link = article.find('link').text
+    title = article.find('title').text
     authors = article.find('dc:creator').text.split(', ')
     damelos = ['Kosman', 'Atkinson', 'Dugan']
     for author in authors:
         for damelo in damelos:
             if damelo in author:
                 watcher['sound'] = 'C:\\Windows\Media\%s.wav' %damelo
-                return link, link
+                return link, (title, link)
     else:
         return False
 
@@ -108,29 +109,35 @@ def get_ctfn(soup, watcher):
 
 def get_muddy(soup, watcher):
     link = soup.find('table', attrs={'id': 'research-table'}).find('a')['href']
-    return link, link
+    title = soup.find('table', attrs={'id': 'research-table'}).find('a').text
+    return link, (title, link)
     
 def get_rss(soup, watcher):
     article = soup.find('item')
     link = article.find('link').text
-    return link, link
+    title = article.find('title').text
+    return link, (title, link)
 
 def get_spruce(soup, watcher):
     link = soup.find('h2', attrs={'class': 'entry-title'}).find('a')['href']
-    return link, link
+    title = soup.find('h2', attrs={'class': 'entry-title'}).text
+    return link, (title, link)
 
 def get_prescience(soup, watcher):
     link = soup.find('h6', attrs={'class': 'entry-title'}).find('a')['href']
-    return link, link
+    title = soup.find('h6', attrs={'class': 'entry-title'}).text
+    return link, (title, link)
 
 def get_citron(soup, watcher):
     link = soup.find('h2', attrs={'class': 'post-title entry-title'}).find('a')['href']
     link = watcher['url'] + link
-    return link, link
+    title = soup.find('h2', attrs={'class': 'post-title entry-title'}).text
+    return link, (title, link)
 
 def get_mox(soup, watcher):
     link = soup.find('h1', attrs={'class': 'entry-title'}).find('a')['href']
-    return link, link
+    title = soup.find('h1', attrs={'class': 'entry-title'}).text
+    return link, (title, link)
 
 def get_glaucus(soup, watcher):
     link = soup.find_all('p')[2].find('a')['href']
@@ -156,12 +163,18 @@ def get_swept(soup, watcher):
 def get_beta(soup, watcher):
     title = soup.find('article').text
     link = watcher['url']
-    return title, link
+    return title, (title, link)
 
 def get_kerrisdale(soup, watcher):
     title = soup.find('h2', attrs={'class': 'post-heading'}).text
     link = watcher['url']
     return title, link
+
+def get_aurelius(soup, watcher):
+    article = soup.find('h2', attrs={'class': 'content-primary__title'})
+    title = article.text
+    link = article.find('a')['href']
+    return link, (title, link)
 
 def get_nflx(soup, watcher):
     q_html = soup.find('ul', {'class': 'textUL'})
@@ -228,9 +241,10 @@ def pacer_selector(soup, watcher):
 def get_stat(soup, watcher):
     article = soup.find('div', attrs={'class': 'card-grid-item'})
     link = article.find('a')['href']
+    title = article.find('span').text
     author = article.find('p', attrs={'class': 'author'}).text
     if 'Adam Feuerstein' in author:
-        return link, link
+        return link, (title, link)
     else:
         return False
                          
@@ -240,19 +254,18 @@ def get_calisuper(page, watcher):
     return len(page), watcher['url']
 #################################################################
 # HANDLERS triggered when a change occurs
-
-def open_nflx(doc, watcher):
-    found = False
-    if 'Letter' in doc.text:
-        link = doc['href']
-        link = 'https://ir.netflix.com/' + link
-        open_url(link, watcher)
     
 def open_url(url, watcher):
+    PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
+    if isinstance(data, tuple):
+        title, url = data
+        print(str(datetime.datetime.now()), watcher['name'], '\n', title)
+    else:
+        url = data
+        print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
     cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
-    PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
-    print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
+    time.sleep(5)
 
 def new_data_ptab(page, watcher):
     def make_url(doc, url):
@@ -303,6 +316,12 @@ def open_pacer((url, case_name), watcher):
         PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
         print(case_name, watcher['name'], str(datetime.datetime.now()))
 
+def open_nflx(doc, watcher):
+    found = False
+    if 'Letter' in doc.text:
+        link = doc['href']
+        link = 'https://ir.netflix.com/' + link
+        open_url(link, watcher)
 
 def open_de(case_name, watcher):
     PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
@@ -408,8 +427,9 @@ watchmen = [
         'sound': 'C:\\Windows\Media\Prescience2.wav'
     },
     {
-        'url': 'http://www.aureliusvalue.com/feed/',
-        'sound': 'C:\\Windows\Media\Aurelius_web.wav'
+        'url': 'http://www.aureliusvalue.com/',
+        'sound': 'C:\\Windows\Media\Aurelius_web.wav',
+        'selector': get_aurelius
     },
     {
         'url': 'https://krebsonsecurity.com/feed/',
