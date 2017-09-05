@@ -255,7 +255,7 @@ def get_calisuper(page, watcher):
 #################################################################
 # HANDLERS triggered when a change occurs
     
-def open_url(url, watcher):
+def open_url(data, watcher):
     PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
     if isinstance(data, tuple):
         title, url = data
