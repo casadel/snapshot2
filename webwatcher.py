@@ -136,7 +136,7 @@ def get_citron(soup, watcher):
 
 def get_mox(soup, watcher):
     link = soup.find('h1', attrs={'class': 'entry-title'}).find('a')['href']
-    title = soup.find('h1', attrs={'class': 'entry-title'}).text
+    title = soup.find('h1', attrs={'class': 'entry-title'}).find('a').text
     return link, (title, link)
 
 def get_glaucus(soup, watcher):
@@ -241,7 +241,7 @@ def pacer_selector(soup, watcher):
 def get_stat(soup, watcher):
     article = soup.find('div', attrs={'class': 'card-grid-item'})
     link = article.find('a')['href']
-    title = article.find('span').text
+    title = article.find('h3', attrs={'class':'post-title'}).find('span').text
     author = article.find('p', attrs={'class': 'author'}).text
     if 'Adam Feuerstein' in author:
         return link, (title, link)
