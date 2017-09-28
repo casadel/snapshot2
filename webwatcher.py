@@ -289,9 +289,14 @@ def new_data_ptab(page, watcher):
                 file.write(pdf.content)
             try:
                 order = conclusion.find_order(filename)
-                print("\n\n" + watcher['name'] + "\n" + order + "\n")
-                Beep(440, 500)
+                neg_words = [' not ', ' fail', ' denied']
+                if any(word in order for word in neg_words):
+                    PlaySound(watcher['POwin_sound'], SND_FILENAME | SND_ASYNC)
+                else:
+                    PlaySound(watcher['POlose_sound'], SND_FILENAME | SND_ASYNC)
+                print("\n\n" + watcher['name'] + " " + str(datetime.datetime.now())  + "\n" + order + "\n")
             except:
+                #open decision in browser if order not found
                 cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
                 subprocess.Popen(cmd, shell=True)
                 print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
