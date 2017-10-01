@@ -17,6 +17,7 @@ import uuid
 import codecs
 import re
 from winsound import PlaySound, Beep, SND_FILENAME, SND_ASYNC
+import pyttsx
 
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
@@ -272,7 +273,9 @@ def new_data_ptab(page, watcher):
         return append_timestamp(url).split('?')[0] + '/' + doc['objectId'] + '/anonymousDownload'
 
     PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
-
+    print (watcher['name'])
+    print('Change detected %s at %s' %(watcher['name'], (str(datetime.datetime.now()))))
+    
     page = json.loads(page)
     opened = False
     for i in xrange(len(page) - 1, -1, -1):
@@ -291,10 +294,11 @@ def new_data_ptab(page, watcher):
                 order = conclusion.find_order(filename)
                 neg_words = [' not ', ' fail', ' denied']
                 if any(word in order for word in neg_words):
-                    PlaySound(watcher['POwin_sound'], SND_FILENAME | SND_ASYNC)
+                    engine.say(watcher['POwin_sound'])
                 else:
-                    PlaySound(watcher['POlose_sound'], SND_FILENAME | SND_ASYNC)
+                    engine.say(watcher['POlose_sound'])
                 print("\n\n" + watcher['name'] + " " + str(datetime.datetime.now())  + "\n" + order + "\n")
+                engine.runAndWait()
             except:
                 #open decision in browser if order not found
                 cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
@@ -340,6 +344,7 @@ headers = {
 
 today = datetime.datetime.now()
 today_str = today.strftime("%m/%d/%Y")
+engine = pyttsx.init()
 bugs = ['http://www.sprucepointcap.com/research/feed', 'http://moxreports.com/', 'https://glaucusresearch.com/', 'http://www.aureliusvalue.com/feed/']
 def loop(watcher):
     while True:
@@ -530,30 +535,81 @@ watchmen = [
         'delay': 30
     },
     # PTAB
-    #{
-    #   # AZN - MYL war on AstraZeneca Onglyza and Kombiglyze, decision due 5/2
-    #    'name': 'IPR2015-01340',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462326/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Azn_myl.wav',
-    #    'type': 'json',
-    #    'delay': 10
-    #},
-    #{
-         # REGN AMGN dupixent preliminary
-    #    'name': 'IPR2017-01129',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1485794/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\EW.wav',
-    #    'type': 'json',
-    #    'dec_types': ['Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    #},
-    #{
-    #    # NVS
-    #    'name': 'IPR2016-00084',
-    #    'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462562/documents?availability=PUBLIC&cacheFix=',
-    #    'sound': 'C:\\Windows\Media\Nvs.wav',
-    #    'type': 'json',
-    #    'delay': 10
-    #},
+    {
+        # LLY ‘209 patent alimta, due 9/30
+        'name': 'IPR2016-01190',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464304/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:/Users/abent/Music/Lly.wav',
+        'POwin_sound' : 'Lilly wins',
+        'POlose_sound' : 'Apotex wins',
+        'type': 'json',
+        'delay': 20
+    },
+    {
+        # LLY ‘209 patent alimta, due 10/4
+        'name': 'IPR2016-01191',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462027/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:/Users/abent/Music/Lly.wav',
+        'POwin_sound' : 'Lilly wins',
+        'POlose_sound' : 'Apotex wins',
+        'type': 'json',
+        'delay': 20
+    },
+    {
+        # LLY ‘209 patent alimta, due 10/4
+        'name': 'IPR2016-01429',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464714/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:/Users/abent/Music/Lly.wav',
+        'POwin_sound' : 'Lilly wins',
+        'POlose_sound' : 'Apotex wins',
+        'type': 'json',
+        'delay': 20
+    },
+    
+    {
+         # REGN AMGN dupixent preliminary, institution decision due 10/6
+        'name': 'IPR2017-01129',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1485794/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Regn.wav',
+        'POwin_sound' : 'Amgen wins',
+        'POlose_sound' : 'Regeneron wins',
+        'type': 'json',
+        'dec_types': ['Institution Decision', 'Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
+    },
+    
+    {
+       # Teva v. LLY '209 patent; decision due 10/6
+        'name': 'IPR2016-01340',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464143/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Lly.wav',
+        'POwin_sound' : 'Lilly wins',
+        'POlose_sound' : 'Teva wins',
+        'type': 'json',
+        'delay': 10
+    },
+    
+    {
+       # Teva v. LLY '209 patent; decision due 10/6
+        'name': 'IPR2016-01343',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462941/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Lly.wav',
+        'POwin_sound' : 'Lilly wins',
+        'POlose_sound' : 'Teva wins',
+        'type': 'json',
+        'delay': 10
+    },
+    
+    {
+       # Teva v. LLY '209 patent; decision due 10/6
+        'name': 'IPR2016-01341',
+        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464261/documents?availability=PUBLIC&cacheFix=',
+        'sound': 'C:\\Windows\Media\Lly.wav',
+        'POwin_sound' : 'Lilly wins',
+        'POlose_sound' : 'Teva wins',
+        'type': 'json',
+        'delay': 10
+    },
+
     # PACER
     #{
     #    'name': 'Cali. Central Dist. Court',
