@@ -18,9 +18,12 @@ import codecs
 import re
 from winsound import PlaySound, Beep, SND_FILENAME, SND_ASYNC
 import pyttsx
-
+import color_console as cons
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+
+default_colors = cons.get_text_attr()
+default_bg = default_colors & 0x0070
 
 def append_timestamp(url):
     return url + str(int((datetime.datetime.utcnow() - datetime.datetime(1970, 1, 1)).total_seconds() * 1000))
@@ -86,6 +89,7 @@ def get_nypost(soup, watcher):
         for damelo in damelos:
             if damelo in author:
                 watcher['sound'] = 'C:\\Windows\Media\%s.wav' %damelo
+                watcher['name'] = damelo + ' NY POST'
                 return link, (title, link)
     else:
         return False
@@ -255,17 +259,23 @@ def get_calisuper(page, watcher):
     return len(page), watcher['url']
 #################################################################
 # HANDLERS triggered when a change occurs
-    
+
+highlights = ['Kosman NY POST', 'SPRUCE PT.', 'CITRON', 'MW', 'SIRF', 'PRESCIENCE PT.', 'FEUERSTEIN']   
 def open_url(data, watcher):
     PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
     if isinstance(data, tuple):
         title, url = data
+        name = watcher['name']
+        if name in highlights:
+            cons.set_text_attr(cons.FOREGROUND_GREY | cons.BACKGROUND_RED |
+                     cons.FOREGROUND_INTENSITY | cons.BACKGROUND_INTENSITY)
         print(str(datetime.datetime.now()), watcher['name'], '\n', title)
     else:
         url = data
         print('%s: Successfully opened %s' %(str(datetime.datetime.now()), watcher['name']))
     cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
     subprocess.Popen(cmd, shell=True)
+    cons.set_text_attr(default_colors)
     time.sleep(5)
 
 def new_data_ptab(page, watcher):
@@ -320,7 +330,10 @@ def open_pacer((url, case_name), watcher):
         cmd = ('start "" "C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe" --new-window "%s"' %url)
         subprocess.Popen(cmd, shell=True)
         PlaySound(sound_file, SND_FILENAME | SND_ASYNC)
+        cons.set_text_attr(cons.FOREGROUND_GREY | cons.BACKGROUND_RED |
+                     cons.FOREGROUND_INTENSITY | cons.BACKGROUND_INTENSITY)
         print(str(datetime.datetime.now()), case_name, url)
+        cons.set_text_attr(default_colors)
     else:
         PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
         print(case_name, watcher['name'], str(datetime.datetime.now()))
@@ -391,6 +404,7 @@ def loop(watcher):
 
 watchmen = [
     {
+        'name': 'NY POST',
         'url': 'http://nypost.com/feed/',
         'selector': get_nypost,
         'sound': 'C:\\Windows\Media\kosman.wav'
@@ -406,71 +420,85 @@ watchmen = [
     #    'sound': 'C:\\Windows\Media\CTFN.wav'
     #},
     {
+        'name': 'FEUERSTEIN',
         'url': 'https://www.statnews.com/category/biotech/',
         'selector': get_stat,
         'sound': 'C:\\Windows\Media\Feuerstein_stat.wav'
     },
     {
+        'name': 'CITRON',
         'url': 'http://www.citronresearch.com',
         'selector': get_citron,
         'sound': 'C:\\Windows\Media\Citron.wav'
     },
     {
+        'name': 'SIRF',
         'url': 'http://sirf-online.org/',
         'selector': get_spruce,
         'sound': 'C:\\Windows\Media\SIRF.wav'
     },
     {
+        'name': 'MW',
         'url': 'http://www.muddywatersresearch.com/research/',
         'sound': 'C:\\Windows\Media\MW.wav',
         'selector': get_muddy
     },
     {
+        'name': 'SPRUCE PT.',
         'url': 'http://www.sprucepointcap.com/research/',
         'delay': 1,
         'selector': get_spruce,
         'sound': 'C:\\Windows\Media\Spruce.wav'
     },
     {
+        'name': 'PRESCIENCE PT.',
         'url': 'http://www.presciencepoint.com/research/',
         'selector': get_prescience,
         'sound': 'C:\\Windows\Media\Prescience2.wav'
     },
     {
+        'name': 'AURELIUS',
         'url': 'http://www.aureliusvalue.com/',
         'sound': 'C:\\Windows\Media\Aurelius_web.wav',
         'selector': get_aurelius
     },
     {
+        'name': 'KREBS',
         'url': 'https://krebsonsecurity.com/feed/',
         'sound': 'C:\\Windows\Media\Krebs.wav'
     },
     {
+        'name': 'MOX',
         'url': 'http://moxreports.com/',
         'selector': get_mox,
         'sound': 'C:\\Windows\Media\Mox.wav'
     },
     {
+        'name': 'GLAUCUS',
         'url': 'https://glaucusresearch.com/',
         'selector': get_glaucus,
         'sound': 'C:\\Windows\Media\Glaucus.wav'
     },
     #{
+    #    'name': 'SKY TIDES',
     #    'url': 'http://www.skytides.com/research',
     #    'selector': get_skytides,
     #    'sound': 'C:\\Windows\Media\Skytides.wav'
     #},
     {
+        'name': 'GOTHAM',
         'url': 'https://gothamcityresearch.com/research/',
         'selector': get_gotham,
         'sound': 'C:\\Windows\Media\Gotham.wav'
     },
     {
+        'name': 'BRONTE',
         'url': 'http://brontecapital.blogspot.com/2017/',
         'selector': get_bronte,
         'sound': 'C:\\Windows\Media\Bronte.wav'
     },
     {
+        'name': 'BETAVILLE,
         'url': 'https://www.betaville.co.uk/',
         'selector': get_beta,
         'sound': 'C:\\Windows\Media\Betaville.wav'
@@ -535,80 +563,6 @@ watchmen = [
         'delay': 30
     },
     # PTAB
-    {
-        # LLY ‘209 patent alimta, due 9/30
-        'name': 'IPR2016-01190',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464304/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:/Users/abent/Music/Lly.wav',
-        'POwin_sound' : 'Lilly wins',
-        'POlose_sound' : 'Apotex wins',
-        'type': 'json',
-        'delay': 20
-    },
-    {
-        # LLY ‘209 patent alimta, due 10/4
-        'name': 'IPR2016-01191',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462027/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:/Users/abent/Music/Lly.wav',
-        'POwin_sound' : 'Lilly wins',
-        'POlose_sound' : 'Apotex wins',
-        'type': 'json',
-        'delay': 20
-    },
-    {
-        # LLY ‘209 patent alimta, due 10/4
-        'name': 'IPR2016-01429',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464714/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:/Users/abent/Music/Lly.wav',
-        'POwin_sound' : 'Lilly wins',
-        'POlose_sound' : 'Apotex wins',
-        'type': 'json',
-        'delay': 20
-    },
-    
-    {
-         # REGN AMGN dupixent preliminary, institution decision due 10/6
-        'name': 'IPR2017-01129',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1485794/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Regn.wav',
-        'POwin_sound' : 'Amgen wins',
-        'POlose_sound' : 'Regeneron wins',
-        'type': 'json',
-        'dec_types': ['Institution Decision', 'Decision Granting Institution', 'Decision Denying Institution', 'Settlement Before Institution']
-    },
-    
-    {
-       # Teva v. LLY '209 patent; decision due 10/6
-        'name': 'IPR2016-01340',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464143/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Lly.wav',
-        'POwin_sound' : 'Lilly wins',
-        'POlose_sound' : 'Teva wins',
-        'type': 'json',
-        'delay': 10
-    },
-    
-    {
-       # Teva v. LLY '209 patent; decision due 10/6
-        'name': 'IPR2016-01343',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1462941/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Lly.wav',
-        'POwin_sound' : 'Lilly wins',
-        'POlose_sound' : 'Teva wins',
-        'type': 'json',
-        'delay': 10
-    },
-    
-    {
-       # Teva v. LLY '209 patent; decision due 10/6
-        'name': 'IPR2016-01341',
-        'url': 'https://ptab.uspto.gov/ptabe2e/rest/petitions/1464261/documents?availability=PUBLIC&cacheFix=',
-        'sound': 'C:\\Windows\Media\Lly.wav',
-        'POwin_sound' : 'Lilly wins',
-        'POlose_sound' : 'Teva wins',
-        'type': 'json',
-        'delay': 10
-    },
 
     # PACER
     #{
