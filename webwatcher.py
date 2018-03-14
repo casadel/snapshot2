@@ -334,6 +334,25 @@ def open_pacer((url, case_name), watcher):
                      cons.FOREGROUND_INTENSITY | cons.BACKGROUND_INTENSITY)
         print(str(datetime.datetime.now()), case_name, url)
         cons.set_text_attr(default_colors)
+        
+        # download View Document page
+        page = requests.get(url, cookies=watcher['cookies'], headers=headers)
+        print (page.content)
+        data = {'pdf_toggle_possible': 1, 'got_receipt': 1}
+        result = re.search('onSubmit="goDLS\(\'.*?\',\'(.*?)\',\'(.*?)\'', page.content)
+        data['caseid'] = result.group(1)
+        data['de_seq_num'] = result.group(1)
+
+        # downloads PDF
+        pdf = requests.post(url, data=data, cookies=watcher['cookies'], headers=headers)
+        filename = 'C:/Python27/Scripts/tmp/' + str(uuid.uuid4()) + '.pdf'
+        with open(filename, 'wb') as file:
+            file.write(pdf.content)
+        conc = conclusion.find_conclusion(filename)
+        print(conc)
+        time.sleep(20)
+        
+        print('\n\n', case_name, watcher['name'])
     else:
         PlaySound(watcher['sound'], SND_FILENAME | SND_ASYNC)
         print(case_name, watcher['name'], str(datetime.datetime.now()))
